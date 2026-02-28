@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo pymupdf not available:*)",
+      "Bash(pdftotext:*)",
+      "mcp__claude_ai_Vercel__search_vercel_documentation",
+      "Bash(cd \"D:/xh/COMP693/ideal-cars\" && npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm 2>&1)",
+      "Bash(cd \"D:/xh/COMP693\" && npx create-next-app@latest ideal-cars-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm 2>&1)",
+      "Bash(cd \"D:/xh/COMP693\" && npx create-next-app@14 ideal-cars-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm 2>&1)",
+      "Bash(ls:*)",
+      "Bash(cd:*)",
+      "Bash(head:*)",
+      "Bash(echo EXIT_CODE: $?:*)",
+      "Bash(tail:*)",
+      "Bash(cd D:/xh/COMP693/ideal-cars && npx next build 2>&1)",
+      "Bash(cd D:/xh/COMP693/ideal-cars && npx tsc --noEmit && npx next lint 2>&1)",
+      "Bash(echo need to try another approach:*)"
+    ]
+  }
+}
