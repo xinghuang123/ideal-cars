@@ -57,9 +57,9 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <Image
               src="/images/logo-transparent.png"
               alt="Ideal Cars"
-              width={130}
-              height={40}
-              className="h-8 w-auto"
+              width={110}
+              height={33}
+              className="h-7 w-auto"
             />
           </Link>
 

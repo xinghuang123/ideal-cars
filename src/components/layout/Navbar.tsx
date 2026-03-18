@@ -31,9 +31,9 @@ export default function Navbar() {
               <Image
                 src="/images/logo-transparent.png"
                 alt="Ideal Cars"
-                width={220}
-                height={66}
-                className="h-14 w-auto"
+                width={180}
+                height={54}
+                className="h-10 w-auto"
                 priority
               />
             </Link>
