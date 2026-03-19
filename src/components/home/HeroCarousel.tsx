@@ -21,9 +21,9 @@ const slides: Slide[] = [
     gradient: "bg-gradient-to-br from-navy-dark via-navy to-navy-light",
   },
   {
-    heading: "Special Deals This Week",
-    subheading: "Don't miss our hand-picked special offers",
-    buttonText: "View Specials",
+    heading: "Featured Vehicles This Week",
+    subheading: "Don't miss our hand-picked featured vehicles",
+    buttonText: "View Featured",
     buttonHref: "/buy?status=special",
     gradient: "bg-gradient-to-tr from-navy via-navy-dark to-navy-light",
   },

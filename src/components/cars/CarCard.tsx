@@ -22,7 +22,7 @@ export default function CarCard({ car }: CarCardProps) {
             variant="special"
             className="absolute top-3 left-3 text-xs uppercase tracking-wide"
           >
-            Special Deal
+            Featured
           </Badge>
         )}
         {car.status === "sold" && (

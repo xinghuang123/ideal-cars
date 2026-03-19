@@ -40,7 +40,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
   const statusBadge = {
     available: { variant: "available" as const, label: "Available" },
-    special: { variant: "special" as const, label: "Special Deal" },
+    special: { variant: "special" as const, label: "Featured" },
     sold: { variant: "sold" as const, label: "Sold" },
   }[car.status];
 

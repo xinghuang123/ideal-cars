@@ -13,7 +13,7 @@ export default function SpecialDeals() {
     <section className="py-16">
       <Container>
         <SectionHeading
-          title="Special Deals"
+          title="Featured Vehicles"
           subtitle="Hand-picked vehicles at unbeatable prices"
         />
 
