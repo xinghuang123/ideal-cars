@@ -221,7 +221,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               </div>
 
               {/* Consumer Information Notice */}
-              <CinCard cin={car.cin} />
+              <CinCard cin={car.cin} make={car.make} model={car.model} year={car.year} />
 
               {/* Basic Condition Guide */}
               <BcgSection bcg={car.bcg} />

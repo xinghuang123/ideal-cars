@@ -26,14 +26,43 @@ export interface Car {
 }
 
 /* ---- Consumer Information Notice (CIN) ---- */
+export interface CinTraderInfo {
+  name: string;
+  address: string;
+  isRegisteredTrader: boolean;
+  traderRegistrationNumber: string;
+  phone?: string;
+  contactPerson?: string;
+}
+
 export interface ConsumerInformationNotice {
+  // Trader info
+  trader: CinTraderInfo;
+  // Sale information
+  cashPrice: number;
   securityInterest: string;
-  regoPlate: string;
+  // Vehicle identification
+  engineCapacityCc: number;
+  odometer: number;
+  odometerUnit: "km" | "miles";
   hasRadio88to108: boolean;
+  vin: string;
+  // WoF / CoF
+  hasWofOrCof: boolean;
+  wofOrCofExpiry: string;
+  // Vehicle licence
+  hasVehicleLicence: boolean;
+  vehicleLicenceExpiry: string;
+  // Registration
+  isRegistered: boolean;
+  regoPlate: string;
   nzFirstRegistered: string;
   isReregistered: boolean;
+  // Fuel & RUC
+  operatingFuelType: string;
   rucApplies: boolean;
   outstandingRuc: boolean;
+  // Import information
   overseasFirstRegistered: string;
   countryLastRegistered: string;
   importedAsDamaged: boolean;
