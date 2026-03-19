@@ -5,6 +5,8 @@ import { cars, getCarById } from "@/data/cars";
 import { formatPrice, formatMileage } from "@/lib/utils";
 import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
+import CinCard from "@/components/cars/CinCard";
+import BcgSection from "@/components/cars/BcgSection";
 
 interface CarDetailPageProps {
   params: Promise<{ id: string }>;
@@ -217,6 +219,12 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                   ))}
                 </div>
               </div>
+
+              {/* Consumer Information Notice */}
+              <CinCard cin={car.cin} />
+
+              {/* Basic Condition Guide */}
+              <BcgSection bcg={car.bcg} />
             </div>
 
             {/* Right column: CTA */}
