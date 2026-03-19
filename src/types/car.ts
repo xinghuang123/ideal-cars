@@ -118,6 +118,7 @@ export interface BasicConditionGuide {
 }
 
 export interface CarFilters {
+  keyword?: string;
   make?: string;
   model?: string;
   yearMin?: number;

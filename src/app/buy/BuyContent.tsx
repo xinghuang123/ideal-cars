@@ -14,6 +14,7 @@ export default function BuyContent() {
 
   useEffect(() => {
     const initial: CarFiltersType = {};
+    const keyword = searchParams.get("keyword");
     const make = searchParams.get("make");
     const model = searchParams.get("model");
     const yearMin = searchParams.get("yearMin");
@@ -25,6 +26,7 @@ export default function BuyContent() {
     const bodyType = searchParams.get("bodyType");
     const sortBy = searchParams.get("sortBy");
 
+    if (keyword) initial.keyword = keyword;
     if (make) initial.make = make;
     if (model) initial.model = model;
     if (yearMin) initial.yearMin = Number(yearMin);
@@ -46,6 +48,27 @@ export default function BuyContent() {
   const filteredCars = useMemo(() => {
     let result = [...allCars];
 
+    if (filters.keyword) {
+      const kw = filters.keyword.toLowerCase();
+      result = result.filter((car) => {
+        const searchable = [
+          car.make,
+          car.model,
+          car.description,
+          car.bodyType,
+          car.fuelType,
+          car.transmission,
+          car.colour,
+          car.driveType,
+          car.engineSize,
+          String(car.year),
+          ...car.features,
+        ]
+          .join(" ")
+          .toLowerCase();
+        return searchable.includes(kw);
+      });
+    }
     if (filters.make) {
       result = result.filter((car) => car.make === filters.make);
     }

@@ -16,6 +16,7 @@ const priceRanges = [
 
 export default function SearchSection() {
   const router = useRouter();
+  const [keyword, setKeyword] = useState("");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
   const [priceRange, setPriceRange] = useState("0");
@@ -29,6 +30,7 @@ export default function SearchSection() {
 
   function handleSearch() {
     const params = new URLSearchParams();
+    if (keyword.trim()) params.set("keyword", keyword.trim());
     if (make) params.set("make", make);
     if (model) params.set("model", model);
 
@@ -49,6 +51,25 @@ export default function SearchSection() {
     <section className="bg-navy-light py-8">
       <Container>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+          {/* Keyword */}
+          <div className="flex-1">
+            <label
+              htmlFor="search-keyword"
+              className="mb-1.5 block text-sm font-medium text-white"
+            >
+              Keyword
+            </label>
+            <input
+              id="search-keyword"
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="e.g. Corolla, SUV, Bluetooth..."
+              className="w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-navy placeholder:text-silver-dark transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+            />
+          </div>
+
           {/* Make */}
           <div className="flex-1">
             <label
