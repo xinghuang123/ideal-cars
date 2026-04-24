@@ -57,10 +57,10 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-bold text-navy">Phone</h3>
                 <a
-                  href="tel:0800432527"
+                  href="tel:02041907335"
                   className="mt-1 block text-silver-dark hover:text-accent transition-colors"
                 >
-                  0800 IDEAL CAR (0800 432 527)
+                  020 4190 7335
                 </a>
               </div>
 
@@ -83,10 +83,10 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-bold text-navy">Email</h3>
                 <a
-                  href="mailto:info@idealcars.co.nz"
+                  href="mailto:idealcarsnzltd@gmail.com"
                   className="mt-1 block text-silver-dark hover:text-accent transition-colors"
                 >
-                  info@idealcars.co.nz
+                  idealcarsnzltd@gmail.com
                 </a>
               </div>
 
@@ -115,11 +115,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-bold text-navy">Address</h3>
                 <p className="mt-1 text-silver-dark">
-                  123 Main Street
-                  <br />
-                  Hamilton 3204
-                  <br />
-                  New Zealand
+                  64 Broad Street, Woolston, Christchurch 8062
                 </p>
               </div>
 
@@ -211,7 +207,7 @@ export default function ContactPage() {
                 />
               </svg>
               <p className="text-lg font-semibold text-silver-dark">
-                Map - 123 Main Street, Hamilton
+                Map - 64 Broad Street, Woolston, Christchurch
               </p>
               <p className="text-sm text-silver-dark">
                 Google Maps integration placeholder

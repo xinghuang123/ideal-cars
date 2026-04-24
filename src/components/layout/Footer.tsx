@@ -76,10 +76,10 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="tel:091234567"
+                  href="tel:02041907335"
                   className="transition-colors hover:text-accent"
                 >
-                  09 123 4567
+                  020 4190 7335
                 </a>
               </li>
               <li className="flex items-start gap-2 text-sm text-silver-dark">
@@ -98,10 +98,10 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="mailto:info@idealcars.co.nz"
+                  href="mailto:idealcarsnzltd@gmail.com"
                   className="transition-colors hover:text-accent"
                 >
-                  info@idealcars.co.nz
+                  idealcarsnzltd@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-2 text-sm text-silver-dark">
@@ -124,7 +124,7 @@ export default function Footer() {
                     d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
                   />
                 </svg>
-                <span>123 Great South Road, Auckland</span>
+                <span>64 Broad Street, Woolston, Christchurch 8062</span>
               </li>
             </ul>
           </div>

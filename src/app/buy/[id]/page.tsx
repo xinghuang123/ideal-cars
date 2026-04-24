@@ -255,10 +255,10 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                     Call us directly
                   </p>
                   <a
-                    href="tel:0800432522"
+                    href="tel:02041907335"
                     className="mt-1 block text-lg font-bold text-navy hover:text-accent transition-colors"
                   >
-                    0800 IDEAL CAR
+                    020 4190 7335
                   </a>
                 </div>
               </div>

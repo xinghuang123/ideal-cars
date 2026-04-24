@@ -36,11 +36,11 @@ export const cars: Car[] = [
     stockNumber: "IC001",
     cin: {
       trader: {
-        name: "Ideal Cars NZ Ltd",
-        address: "64 Racecourse Road, Sockburn, Christchurch 8042",
+        name: "Ideal Cars Limited",
+        address: "64 Broad Street, Woolston, Christchurch 8062",
         isRegisteredTrader: true,
         traderRegistrationNumber: "MV123456",
-        phone: "0800 IDEAL CAR",
+        phone: "020 4190 7335",
         contactPerson: "Johnie Moore",
       },
       cashPrice: 24990,
@@ -68,7 +68,7 @@ export const cars: Car[] = [
     bcg: {
       inspectionDate: "2026-03-01",
       inspectorName: "John Smith",
-      publisherName: "Ideal Cars Ltd",
+      publisherName: "Ideal Cars Limited",
       checklist: [
         { category: "Engine", item: "Oil level", status: "OK" },
         { category: "Engine", item: "Smoke & fumes", status: "OK" },
