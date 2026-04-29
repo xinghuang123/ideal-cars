@@ -19,22 +19,67 @@ export default function SetPasswordForm() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // Supabase recovery / invite links arrive with a hash like
-    // #access_token=...&refresh_token=...&type=recovery
-    // The supabase-js client picks these up automatically and emits
-    // a PASSWORD_RECOVERY event. We confirm a session exists before
-    // showing the form.
+    if (typeof window === "undefined") return;
 
-    if (typeof window !== "undefined" && window.location.hash) {
-      const params = new URLSearchParams(window.location.hash.slice(1));
-      if (params.get("error_code") === "otp_expired") {
+    function isExpiredError(message: string) {
+      const m = message.toLowerCase();
+      return m.includes("expired") || m.includes("invalid") || m.includes("otp");
+    }
+
+    // Hash may carry an explicit error from Supabase
+    if (window.location.hash) {
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      if (hashParams.get("error_code") === "otp_expired") {
         setStatus("linkExpired");
         return;
       }
     }
 
+    const url = new URL(window.location.href);
+
+    // PKCE flow — Supabase redirects with ?code=...
+    const code = url.searchParams.get("code");
+    if (code) {
+      supabase.auth
+        .exchangeCodeForSession(code)
+        .then(({ data, error }) => {
+          if (error) {
+            setStatus(isExpiredError(error.message) ? "linkExpired" : "noSession");
+            return;
+          }
+          setStatus(data.session ? "ready" : "noSession");
+        })
+        .catch(() => setStatus("noSession"));
+      return;
+    }
+
+    // Token-hash flow — ?token_hash=...&type=invite|recovery|magiclink
+    const tokenHash = url.searchParams.get("token_hash");
+    const otpType = url.searchParams.get("type");
+    if (tokenHash && otpType) {
+      supabase.auth
+        .verifyOtp({
+          token_hash: tokenHash,
+          type: otpType as "invite" | "recovery" | "magiclink" | "email",
+        })
+        .then(({ data, error }) => {
+          if (error) {
+            setStatus(isExpiredError(error.message) ? "linkExpired" : "noSession");
+            return;
+          }
+          setStatus(data.session ? "ready" : "noSession");
+        })
+        .catch(() => setStatus("noSession"));
+      return;
+    }
+
+    // Implicit flow — supabase-js auto-detects the hash and creates a session
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+      if (
+        event === "PASSWORD_RECOVERY" ||
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION"
+      ) {
         if (session) setStatus("ready");
       }
     });
@@ -42,14 +87,13 @@ export default function SetPasswordForm() {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         setStatus("ready");
-      } else {
-        // Give the listener a moment to pick up the hash
-        setTimeout(() => {
-          supabase.auth.getSession().then(({ data: d2 }) => {
-            setStatus(d2.session ? "ready" : "noSession");
-          });
-        }, 800);
+        return;
       }
+      setTimeout(() => {
+        supabase.auth.getSession().then(({ data: d2 }) => {
+          setStatus(d2.session ? "ready" : "noSession");
+        });
+      }, 1500);
     });
 
     return () => {
