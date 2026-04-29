@@ -1,10 +1,10 @@
-import { getSoldCars } from "@/data/cars";
+import { getSoldVehicles } from "@/lib/vehicles";
 import CarCard from "@/components/cars/CarCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Container from "@/components/ui/Container";
 
-export default function LatestSold() {
-  const soldCars = getSoldCars();
+export default async function LatestSold() {
+  const soldCars = await getSoldVehicles();
 
   if (soldCars.length === 0) return null;
 

@@ -6,6 +6,12 @@ import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import { carMakes, fuelTypes, transmissionTypes } from "@/data/makes";
+import { createClient } from "@/lib/supabase/client";
+import type {
+  FuelType,
+  TransmissionType,
+  SellCondition,
+} from "@/types/database";
 
 interface FormData {
   name: string;
@@ -52,6 +58,8 @@ export default function SellCarForm() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function handleChange(
     e: React.ChangeEvent<
@@ -89,13 +97,44 @@ export default function SellCarForm() {
     return errs;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const supabase = createClient();
+    const { error } = await supabase.from("sell_car_enquiries").insert({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      make: formData.make,
+      model: formData.model.trim(),
+      year: Number(formData.year),
+      mileage: Number(formData.mileage),
+      fuel_type: formData.fuelType as FuelType,
+      transmission: formData.transmission as TransmissionType,
+      condition: formData.condition as SellCondition,
+      description: formData.description.trim() || null,
+      expected_price: formData.expectedPrice
+        ? Number(formData.expectedPrice)
+        : null,
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      setSubmitError(
+        "Sorry, we could not submit your valuation request. Please try again or call us directly.",
+      );
+      return;
+    }
+
     setSubmitted(true);
   }
 
@@ -290,9 +329,17 @@ export default function SellCarForm() {
         </div>
       </fieldset>
 
+      {submitError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
+          {submitError}
+        </div>
+      )}
       <div>
-        <Button type="submit" size="lg">
-          Request Valuation
+        <Button type="submit" size="lg" disabled={submitting}>
+          {submitting ? "Submitting..." : "Request Valuation"}
         </Button>
       </div>
     </form>

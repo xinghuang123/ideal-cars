@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { cars, getCarById } from "@/data/cars";
+import Image from "next/image";
+import { getVehicleById } from "@/lib/vehicles";
 import { formatPrice, formatMileage } from "@/lib/utils";
 import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
@@ -12,15 +13,11 @@ interface CarDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateStaticParams() {
-  return cars.map((car) => ({ id: car.id }));
-}
-
 export async function generateMetadata({
   params,
 }: CarDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const car = getCarById(id);
+  const car = await getVehicleById(id);
 
   if (!car) {
     return { title: "Car Not Found" };
@@ -34,7 +31,7 @@ export async function generateMetadata({
 
 export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const { id } = await params;
-  const car = getCarById(id);
+  const car = await getVehicleById(id);
 
   if (!car) {
     notFound();
@@ -91,9 +88,20 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
           <div className="mb-8">
             {/* Main image */}
             <div className="relative h-64 overflow-hidden rounded-xl bg-gray-200 sm:h-80 md:h-96 lg:h-[28rem]">
-              <div className="flex h-full items-center justify-center text-lg font-medium text-gray-500">
-                {car.year} {car.make} {car.model}
-              </div>
+              {car.images.length > 0 ? (
+                <Image
+                  src={car.images[0]}
+                  alt={`${car.year} ${car.make} ${car.model}`}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-lg font-medium text-gray-500">
+                  {car.year} {car.make} {car.model}
+                </div>
+              )}
               {/* Status badge overlay */}
               {car.status !== "available" && (
                 <Badge
@@ -105,23 +113,24 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               )}
             </div>
             {/* Thumbnail row */}
-            <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-6">
-              {car.images.map((_, idx) => (
-                <div
-                  key={idx}
-                  className="h-16 rounded-lg bg-gray-200 sm:h-20"
-                />
-              ))}
-              {/* Fill remaining slots to show placeholder thumbnails */}
-              {Array.from({ length: Math.max(0, 4 - car.images.length) }).map(
-                (_, idx) => (
+            {car.images.length > 1 && (
+              <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-6">
+                {car.images.slice(1).map((url, idx) => (
                   <div
-                    key={`placeholder-${idx}`}
-                    className="h-16 rounded-lg bg-gray-100 sm:h-20"
-                  />
-                )
-              )}
-            </div>
+                    key={idx}
+                    className="relative h-16 overflow-hidden rounded-lg bg-gray-200 sm:h-20"
+                  >
+                    <Image
+                      src={url}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="200px"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Title section */}
@@ -221,10 +230,60 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               </div>
 
               {/* Consumer Information Notice */}
-              <CinCard cin={car.cin} make={car.make} model={car.model} year={car.year} />
+              {car.cin && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-end">
+                    <a
+                      href={`/api/vehicles/${car.id}/cin.pdf`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-white"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                        />
+                      </svg>
+                      Download CIN as PDF
+                    </a>
+                  </div>
+                  <CinCard cin={car.cin} make={car.make} model={car.model} year={car.year} />
+                </div>
+              )}
 
               {/* Basic Condition Guide */}
-              <BcgSection bcg={car.bcg} />
+              {car.bcg && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-end">
+                    <a
+                      href={`/api/vehicles/${car.id}/bcg.pdf`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-white"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                        />
+                      </svg>
+                      Download BCG as PDF
+                    </a>
+                  </div>
+                  <BcgSection bcg={car.bcg} />
+                </div>
+              )}
             </div>
 
             {/* Right column: CTA */}

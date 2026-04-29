@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import NewsletterForm from "@/components/layout/NewsletterForm";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -137,23 +138,7 @@ export default function Footer() {
             <p className="mt-4 text-sm text-silver-dark">
               Stay up to date with our latest deals and news.
             </p>
-            <form
-              className="mt-4 flex flex-col gap-2"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="w-full rounded-md border border-navy-light bg-navy-dark px-3 py-2 text-sm text-silver placeholder:text-silver-dark focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                required
-              />
-              <button
-                type="submit"
-                className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-navy transition-colors hover:bg-accent-dark"
-              >
-                Subscribe
-              </button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
       </div>

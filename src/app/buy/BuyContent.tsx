@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { CarFilters as CarFiltersType } from "@/types/car";
-import { getAvailableCars } from "@/data/cars";
+import { Car, CarFilters as CarFiltersType } from "@/types/car";
 import Container from "@/components/ui/Container";
 import CarFilters from "@/components/cars/CarFilters";
 import CarGrid from "@/components/cars/CarGrid";
 
-export default function BuyContent() {
+export default function BuyContent({ allCars }: { allCars: Car[] }) {
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<CarFiltersType>({});
 
@@ -42,8 +41,6 @@ export default function BuyContent() {
       setFilters(initial);
     }
   }, [searchParams]);
-
-  const allCars = useMemo(() => getAvailableCars(), []);
 
   const filteredCars = useMemo(() => {
     let result = [...allCars];

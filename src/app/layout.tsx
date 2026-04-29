@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ChatbotFAB from "@/components/ui/ChatbotFAB";
+import PublicChrome from "@/components/layout/PublicChrome";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,10 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <ChatbotFAB />
+        <PublicChrome>{children}</PublicChrome>
       </body>
     </html>
   );

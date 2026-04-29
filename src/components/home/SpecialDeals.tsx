@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { getSpecialCars } from "@/data/cars";
+import { getSpecialVehicles } from "@/lib/vehicles";
 import CarCard from "@/components/cars/CarCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Container from "@/components/ui/Container";
 
-export default function SpecialDeals() {
-  const specialCars = getSpecialCars();
+export default async function SpecialDeals() {
+  const specialCars = await getSpecialVehicles();
 
   if (specialCars.length === 0) return null;
 

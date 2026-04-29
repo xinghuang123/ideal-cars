@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Car } from "@/types/car";
 import { formatPrice, formatMileage } from "@/lib/utils";
 import Badge from "@/components/ui/Badge";
@@ -8,13 +9,25 @@ interface CarCardProps {
 }
 
 export default function CarCard({ car }: CarCardProps) {
+  const heroImage = car.images[0];
+
   return (
     <div className="group overflow-hidden rounded-xl bg-white shadow-sm border border-gray-100 transition-shadow duration-300 hover:shadow-lg">
-      {/* Image placeholder */}
+      {/* Image */}
       <div className="relative h-48 bg-gray-200">
-        <div className="flex h-full items-center justify-center text-gray-500 font-medium">
-          {car.make} {car.model}
-        </div>
+        {heroImage ? (
+          <Image
+            src={heroImage}
+            alt={`${car.year} ${car.make} ${car.model}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-gray-500 font-medium">
+            {car.make} {car.model}
+          </div>
+        )}
 
         {/* Status badge */}
         {car.status === "special" && (

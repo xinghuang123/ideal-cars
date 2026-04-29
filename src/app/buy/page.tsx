@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import PageHeader from "@/components/layout/PageHeader";
 import BuyContent from "./BuyContent";
+import { getAvailableVehicles } from "@/lib/vehicles";
 
 export const metadata: Metadata = {
   title: "Buy a Car",
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
     "Browse our range of quality second-hand vehicles. Filter by make, model, price, and more to find your ideal car.",
 };
 
-export default function BuyPage() {
+export default async function BuyPage() {
+  const cars = await getAvailableVehicles();
+
   return (
     <>
       <PageHeader
@@ -23,7 +26,7 @@ export default function BuyPage() {
           </div>
         }
       >
-        <BuyContent />
+        <BuyContent allCars={cars} />
       </Suspense>
     </>
   );

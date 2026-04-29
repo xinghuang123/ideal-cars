@@ -5,6 +5,8 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { createClient } from "@/lib/supabase/client";
+import type { EnquirySubject } from "@/types/database";
 
 interface ContactFormData {
   name: string;
@@ -38,6 +40,8 @@ export default function ContactForm() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function handleChange(
     e: React.ChangeEvent<
@@ -67,13 +71,35 @@ export default function ContactForm() {
     return errs;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const supabase = createClient();
+    const { error } = await supabase.from("contact_enquiries").insert({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      subject: formData.subject as EnquirySubject,
+      message: formData.message.trim(),
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      setSubmitError(
+        "Sorry, we could not send your message. Please try again or call us directly.",
+      );
+      return;
+    }
+
     setSubmitted(true);
   }
 
@@ -154,9 +180,22 @@ export default function ContactForm() {
         onChange={handleChange}
         error={errors.message}
       />
+      {submitError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
+          {submitError}
+        </div>
+      )}
       <div className="pt-2">
-        <Button type="submit" size="lg" className="w-full">
-          Send Message
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={submitting}
+        >
+          {submitting ? "Sending..." : "Send Message"}
         </Button>
       </div>
     </form>
