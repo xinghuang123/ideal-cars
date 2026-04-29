@@ -9,6 +9,7 @@ const navItems = [
   { href: "/admin/sell-requests", label: "Sell Car Requests" },
   { href: "/admin/subscribers", label: "Newsletter Subscribers" },
   { href: "/admin/vehicles", label: "Vehicles" },
+  { href: "/admin/admins", label: "Admin Users" },
 ];
 
 export default function AdminSidebar() {

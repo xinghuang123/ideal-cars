@@ -31,8 +31,10 @@ export async function updateSession(request: NextRequest) {
 
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
   const isLoginPage = request.nextUrl.pathname === "/admin/login";
+  const isSetPasswordPage = request.nextUrl.pathname === "/admin/set-password";
+  const isAuthPublicPage = isLoginPage || isSetPasswordPage;
 
-  if (isAdminRoute && !isLoginPage) {
+  if (isAdminRoute && !isAuthPublicPage) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
