@@ -50,21 +50,7 @@ export async function inviteAdmin(formData: FormData) {
   return { ok: true, email };
 }
 
-export async function resendInvite(userId: string, email: string) {
-  await requireAdmin();
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${siteUrl()}/admin/set-password`,
-  });
-  if (error) {
-    return { error: error.message };
-  }
-  revalidatePath("/admin/admins");
-  return { ok: true };
-}
-
-export async function sendPasswordRecovery(email: string) {
-  await requireAdmin();
+async function sendRecoveryEmail(email: string) {
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.generateLink({
     type: "recovery",
@@ -76,6 +62,16 @@ export async function sendPasswordRecovery(email: string) {
   }
   revalidatePath("/admin/admins");
   return { ok: true };
+}
+
+export async function resendInvite(userId: string, email: string) {
+  await requireAdmin();
+  return sendRecoveryEmail(email);
+}
+
+export async function sendPasswordRecovery(email: string) {
+  await requireAdmin();
+  return sendRecoveryEmail(email);
 }
 
 export async function revokeAdmin(userId: string) {
