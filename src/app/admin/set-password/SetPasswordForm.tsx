@@ -26,13 +26,37 @@ export default function SetPasswordForm() {
       return m.includes("expired") || m.includes("invalid") || m.includes("otp");
     }
 
-    // Hash may carry an explicit error from Supabase
-    if (window.location.hash) {
-      const hashParams = new URLSearchParams(window.location.hash.slice(1));
-      if (hashParams.get("error_code") === "otp_expired") {
-        setStatus("linkExpired");
-        return;
-      }
+    const hashParams = window.location.hash
+      ? new URLSearchParams(window.location.hash.slice(1))
+      : null;
+
+    // Supabase may put an explicit error in the hash
+    if (hashParams?.get("error_code") === "otp_expired") {
+      setStatus("linkExpired");
+      return;
+    }
+
+    // Implicit flow — hash carries access_token + refresh_token
+    const accessToken = hashParams?.get("access_token");
+    const refreshToken = hashParams?.get("refresh_token");
+    if (accessToken && refreshToken) {
+      supabase.auth
+        .setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ data, error }) => {
+          if (error) {
+            setStatus(isExpiredError(error.message) ? "linkExpired" : "noSession");
+            return;
+          }
+          if (data.session) {
+            // Clear the tokens from the URL bar
+            window.history.replaceState(null, "", window.location.pathname);
+            setStatus("ready");
+          } else {
+            setStatus("noSession");
+          }
+        })
+        .catch(() => setStatus("noSession"));
+      return;
     }
 
     const url = new URL(window.location.href);
@@ -73,32 +97,10 @@ export default function SetPasswordForm() {
       return;
     }
 
-    // Implicit flow — supabase-js auto-detects the hash and creates a session
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (
-        event === "PASSWORD_RECOVERY" ||
-        event === "SIGNED_IN" ||
-        event === "INITIAL_SESSION"
-      ) {
-        if (session) setStatus("ready");
-      }
-    });
-
+    // No token in URL — maybe the user is already signed in (e.g., navigated here)
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setStatus("ready");
-        return;
-      }
-      setTimeout(() => {
-        supabase.auth.getSession().then(({ data: d2 }) => {
-          setStatus(d2.session ? "ready" : "noSession");
-        });
-      }, 1500);
+      setStatus(data.session ? "ready" : "noSession");
     });
-
-    return () => {
-      sub.subscription.unsubscribe();
-    };
   }, [supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
