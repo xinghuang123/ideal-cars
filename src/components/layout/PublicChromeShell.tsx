@@ -1,23 +1,21 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ChatbotFAB from "@/components/ui/ChatbotFAB";
-import CookieNotice from "@/components/layout/CookieNotice";
 
 interface Props {
   children: React.ReactNode;
-  userEmail: string | null;
-  userName: string | null;
-  isAdmin: boolean;
+  navbar: React.ReactNode;
+  footer: React.ReactNode;
+  chatbot: React.ReactNode;
+  cookieNotice: React.ReactNode;
 }
 
 export default function PublicChromeShell({
   children,
-  userEmail,
-  userName,
-  isAdmin,
+  navbar,
+  footer,
+  chatbot,
+  cookieNotice,
 }: Props) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin") ?? false;
@@ -28,11 +26,11 @@ export default function PublicChromeShell({
 
   return (
     <>
-      <Navbar userEmail={userEmail} userName={userName} isAdmin={isAdmin} />
+      {navbar}
       <main className="min-h-screen">{children}</main>
-      <Footer />
-      <ChatbotFAB />
-      <CookieNotice />
+      {footer}
+      {chatbot}
+      {cookieNotice}
     </>
   );
 }

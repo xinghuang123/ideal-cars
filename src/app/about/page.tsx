@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { getSiteContent } from "@/lib/site-content";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About Us | Ideal Cars",
@@ -45,7 +48,8 @@ const team = [
   { name: "David Thompson", role: "Service Manager" },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getSiteContent();
   return (
     <>
       <PageHeader
@@ -58,14 +62,7 @@ export default function AboutPage() {
         <Container>
           <SectionHeading title="Our Story" />
           <div className="mx-auto max-w-3xl space-y-4 text-silver-dark">
-            <p>
-              Ideal Cars was founded with a simple mission: to make buying and
-              selling cars a straightforward, honest, and enjoyable experience.
-              As a family-owned and operated dealership, we have been proudly
-              serving the New Zealand community for over a decade, building
-              lasting relationships with our customers based on trust and
-              integrity.
-            </p>
+            <p>{content.about_intro}</p>
             <p>
               What started as a small yard with a handful of vehicles has grown
               into a full-service dealership offering quality used cars, vehicle

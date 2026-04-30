@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import PublicChrome from "@/components/layout/PublicChrome";
 
@@ -79,6 +81,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <PublicChrome>{children}</PublicChrome>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

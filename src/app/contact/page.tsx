@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import ContactForm from "@/components/forms/ContactForm";
+import { getSiteContent } from "@/lib/site-content";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contact Us | Ideal Cars",
@@ -9,13 +12,13 @@ export const metadata: Metadata = {
     "Get in touch with Ideal Cars. Call, email, or visit us. We are here to help with buying, selling, finance, and servicing.",
 };
 
-const hours = [
-  { day: "Monday - Friday", time: "8:30am - 5:30pm" },
-  { day: "Saturday", time: "9:00am - 3:00pm" },
-  { day: "Sunday", time: "Closed" },
-];
-
-export default function ContactPage() {
+export default async function ContactPage() {
+  const content = await getSiteContent();
+  const hours = [
+    { day: "Mon – Fri", time: content.hours_weekday.replace(/^.*?:\s*/, "") },
+    { day: "Saturday", time: content.hours_saturday.replace(/^.*?:\s*/, "") },
+    { day: "Sunday", time: content.hours_sunday.replace(/^.*?:\s*/, "") },
+  ];
   return (
     <>
       <PageHeader
@@ -57,10 +60,10 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-bold text-navy">Phone</h3>
                 <a
-                  href="tel:02041907335"
+                  href={content.phone_href}
                   className="mt-1 block text-silver-dark hover:text-accent transition-colors"
                 >
-                  020 4190 7335
+                  {content.phone}
                 </a>
               </div>
 
@@ -83,10 +86,10 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-bold text-navy">Email</h3>
                 <a
-                  href="mailto:idealcarsnzltd@gmail.com"
+                  href={`mailto:${content.email}`}
                   className="mt-1 block text-silver-dark hover:text-accent transition-colors"
                 >
-                  idealcarsnzltd@gmail.com
+                  {content.email}
                 </a>
               </div>
 
@@ -114,9 +117,7 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <h3 className="font-bold text-navy">Address</h3>
-                <p className="mt-1 text-silver-dark">
-                  64 Broad Street, Woolston, Christchurch 8062
-                </p>
+                <p className="mt-1 text-silver-dark">{content.address}</p>
               </div>
 
               {/* Opening Hours */}
@@ -207,7 +208,7 @@ export default function ContactPage() {
                 />
               </svg>
               <p className="text-lg font-semibold text-silver-dark">
-                Map - 64 Broad Street, Woolston, Christchurch
+                Map — {content.address}
               </p>
               <p className="text-sm text-silver-dark">
                 Google Maps integration placeholder

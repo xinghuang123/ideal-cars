@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", exact: true },
+  { href: "/admin/insights", label: "Insights" },
   { href: "/admin/contact", label: "Contact Enquiries" },
   { href: "/admin/vehicle-enquiries", label: "Vehicle Enquiries" },
   { href: "/admin/sell-requests", label: "Sell Car Requests" },
@@ -13,6 +14,7 @@ const navItems = [
   { href: "/admin/customers", label: "Customers" },
   { href: "/admin/chat-sessions", label: "Chat Transcripts" },
   { href: "/admin/vehicles", label: "Vehicles" },
+  { href: "/admin/site-content", label: "Site Content" },
   { href: "/admin/admins", label: "Admin Users" },
 ];
 

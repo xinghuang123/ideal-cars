@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getVehicleById } from "@/lib/vehicles";
 import { formatPrice, formatMileage } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
 import CinCard from "@/components/cars/CinCard";
@@ -56,6 +57,13 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
   if (!car) {
     notFound();
   }
+
+  // Fire-and-forget view tracking. Don't block render or fail the page.
+  void createClient()
+    .rpc("record_vehicle_view", { v_id: id })
+    .then(({ error }) => {
+      if (error) console.error("[record_vehicle_view]", error);
+    });
 
   const statusBadge = {
     available: { variant: "available" as const, label: "Available" },

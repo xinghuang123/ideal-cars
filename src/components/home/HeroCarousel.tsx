@@ -12,7 +12,7 @@ interface Slide {
   gradient: string;
 }
 
-const slides: Slide[] = [
+const defaultSlides: Slide[] = [
   {
     heading: "Find Your Ideal Car",
     subheading: "Browse our quality selection of second-hand vehicles",
@@ -36,7 +36,21 @@ const slides: Slide[] = [
   },
 ];
 
-export default function HeroCarousel() {
+interface HeroCarouselProps {
+  heroTitle?: string;
+  heroSubtitle?: string;
+}
+
+export default function HeroCarousel({ heroTitle, heroSubtitle }: HeroCarouselProps = {}) {
+  const slides: Slide[] = [
+    {
+      ...defaultSlides[0],
+      heading: heroTitle || defaultSlides[0].heading,
+      subheading: heroSubtitle || defaultSlides[0].subheading,
+    },
+    defaultSlides[1],
+    defaultSlides[2],
+  ];
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -63,7 +77,7 @@ export default function HeroCarousel() {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const slide = slides[current];
 
