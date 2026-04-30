@@ -148,7 +148,20 @@ export default function Footer() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
             <p className="text-xs text-silver-dark">
-              &copy; 2026 Ideal Cars. All rights reserved.
+              &copy; 2026 Ideal Cars Ltd. All rights reserved.{" "}
+              <Link
+                href="/privacy"
+                className="ml-2 transition-colors hover:text-accent"
+              >
+                Privacy
+              </Link>
+              <span className="mx-1">·</span>
+              <Link
+                href="/terms"
+                className="transition-colors hover:text-accent"
+              >
+                Terms
+              </Link>
             </p>
 
             {/* Social Media Links */}

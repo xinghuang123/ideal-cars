@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ChatbotFAB from "@/components/ui/ChatbotFAB";
+import CookieNotice from "@/components/layout/CookieNotice";
 
 export default function PublicChrome({
   children,
@@ -23,6 +24,7 @@ export default function PublicChrome({
       <main className="min-h-screen">{children}</main>
       <Footer />
       <ChatbotFAB />
+      <CookieNotice />
     </>
   );
 }

@@ -1,7 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { notifyAdmins, renderContactEnquiryEmail } from "@/lib/email";
+import {
+  notifyAdmins,
+  emailCustomer,
+  renderContactEnquiryEmail,
+  renderCustomerContactConfirmation,
+} from "@/lib/email";
 import type { EnquirySubject } from "@/types/database";
 
 interface SubmitArgs {
@@ -26,12 +31,19 @@ export async function submitContactEnquiry(args: SubmitArgs) {
     return { error: "Sorry, we could not send your message. Please try again or call us directly." };
   }
 
-  // Fire notification but never block the response on email send
-  notifyAdmins({
-    subject: `New contact enquiry: ${args.subject}`,
-    html: renderContactEnquiryEmail(args),
-    replyTo: args.email,
-  }).catch((err) => console.error("[contact] notifyAdmins error:", err));
+  // Fire notification + customer confirmation in parallel; never block on email
+  Promise.allSettled([
+    notifyAdmins({
+      subject: `New contact enquiry: ${args.subject}`,
+      html: renderContactEnquiryEmail(args),
+      replyTo: args.email,
+    }),
+    emailCustomer({
+      to: args.email,
+      subject: "We've received your enquiry — Ideal Cars",
+      html: renderCustomerContactConfirmation(args.name),
+    }),
+  ]).catch((err) => console.error("[contact] email error:", err));
 
   return { ok: true };
 }

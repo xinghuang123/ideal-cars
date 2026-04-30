@@ -1,7 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { notifyAdmins, renderSellCarEnquiryEmail } from "@/lib/email";
+import {
+  notifyAdmins,
+  emailCustomer,
+  renderSellCarEnquiryEmail,
+  renderCustomerSellConfirmation,
+} from "@/lib/email";
 import type {
   FuelType,
   TransmissionType,
@@ -47,11 +52,22 @@ export async function submitSellCarEnquiry(args: SubmitArgs) {
     };
   }
 
-  notifyAdmins({
-    subject: `New sell request: ${args.year} ${args.make} ${args.model}`,
-    html: renderSellCarEnquiryEmail(args),
-    replyTo: args.email,
-  }).catch((err) => console.error("[sell] notifyAdmins error:", err));
+  Promise.allSettled([
+    notifyAdmins({
+      subject: `New sell request: ${args.year} ${args.make} ${args.model}`,
+      html: renderSellCarEnquiryEmail(args),
+      replyTo: args.email,
+    }),
+    emailCustomer({
+      to: args.email,
+      subject: "Valuation request received — Ideal Cars",
+      html: renderCustomerSellConfirmation(args.name, {
+        year: args.year,
+        make: args.make,
+        model: args.model,
+      }),
+    }),
+  ]).catch((err) => console.error("[sell] email error:", err));
 
   return { ok: true };
 }

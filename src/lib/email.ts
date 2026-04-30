@@ -70,6 +70,33 @@ export async function notifyAdmins({ subject, html, replyTo }: SendArgs) {
   }
 }
 
+interface CustomerEmailArgs {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+/**
+ * Sends a confirmation email back to the customer. Same fail-safe
+ * behavior as notifyAdmins.
+ */
+export async function emailCustomer({ to, subject, html }: CustomerEmailArgs) {
+  const resend = getResend();
+  if (!resend) return;
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject,
+      html,
+      replyTo: process.env.EMAIL_REPLY_TO ?? "idealcarsnzltd@gmail.com",
+    });
+    if (error) console.error("[email] emailCustomer failed:", error);
+  } catch (err) {
+    console.error("[email] emailCustomer threw:", err);
+  }
+}
+
 export function escapeHtml(input: string): string {
   return input
     .replace(/&/g, "&amp;")
@@ -114,6 +141,123 @@ export function renderContactEnquiryEmail(e: ContactEnquiry): string {
       </p>
     </div>
   `;
+}
+
+function emailShell(title: string, body: string): string {
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; color: #1E2A3A;">
+      <div style="background: #1E2A3A; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px;">IDEAL CARS</h1>
+      </div>
+      <div style="background: white; padding: 28px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+        <h2 style="color: #1E2A3A; margin-top: 0;">${title}</h2>
+        ${body}
+      </div>
+      <div style="text-align: center; padding: 16px; color: #5b6570; font-size: 12px;">
+        Ideal Cars Ltd · 020 4190 7335 · idealcarsnzltd@gmail.com
+      </div>
+    </div>
+  `;
+}
+
+export function renderCustomerContactConfirmation(name: string): string {
+  const safe = escapeHtml(name);
+  return emailShell(
+    "Thanks for getting in touch",
+    `
+      <p>Kia ora ${safe},</p>
+      <p>We've received your message and one of our team will be in touch within one business day.</p>
+      <p>If your enquiry is urgent, please call us directly on <a href="tel:0204190 7335" style="color: #5BC0EB;">020 4190 7335</a>.</p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
+}
+
+export function renderCustomerSellConfirmation(
+  name: string,
+  car: { year: number; make: string; model: string },
+): string {
+  const safeName = escapeHtml(name);
+  const safeMake = escapeHtml(car.make);
+  const safeModel = escapeHtml(car.model);
+  return emailShell(
+    "Valuation request received",
+    `
+      <p>Kia ora ${safeName},</p>
+      <p>Thanks for sending us details on your <strong>${car.year} ${safeMake} ${safeModel}</strong>.</p>
+      <p>We'll review the information and come back to you within 24 hours with a valuation. If we need any extra details — such as photos or service history — we'll let you know.</p>
+      <p>If you'd like to talk it through sooner, give us a call on <a href="tel:0204190 7335" style="color: #5BC0EB;">020 4190 7335</a>.</p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
+}
+
+interface VehicleEnquiry {
+  name: string;
+  email: string;
+  phone: string;
+  message: string | null;
+  vehicle: {
+    year: number;
+    make: string;
+    model: string;
+    stockNumber: string;
+    price: number;
+    url: string;
+  };
+}
+
+export function renderVehicleEnquiryEmail(e: VehicleEnquiry): string {
+  const safe = {
+    name: escapeHtml(e.name),
+    email: escapeHtml(e.email),
+    phone: escapeHtml(e.phone),
+    make: escapeHtml(e.vehicle.make),
+    model: escapeHtml(e.vehicle.model),
+    stock: escapeHtml(e.vehicle.stockNumber),
+    message: e.message ? escapeHtml(e.message).replace(/\n/g, "<br/>") : "",
+    url: escapeHtml(e.vehicle.url),
+  };
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #1E2A3A; border-bottom: 2px solid #5BC0EB; padding-bottom: 8px;">
+        New Vehicle Enquiry
+      </h2>
+      <h3 style="color: #1E2A3A;">
+        <a href="${safe.url}" style="color: #1E2A3A;">${e.vehicle.year} ${safe.make} ${safe.model}</a>
+        — Stock #${safe.stock}
+      </h3>
+      <p style="color: #5b6570;">Listed at $${e.vehicle.price.toLocaleString("en-NZ")}</p>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+        <tr><td style="padding: 8px 0; color: #5b6570; width: 110px;">From</td><td style="padding: 8px 0;"><strong>${safe.name}</strong></td></tr>
+        <tr><td style="padding: 8px 0; color: #5b6570;">Email</td><td style="padding: 8px 0;"><a href="mailto:${safe.email}">${safe.email}</a></td></tr>
+        <tr><td style="padding: 8px 0; color: #5b6570;">Phone</td><td style="padding: 8px 0;"><a href="tel:${safe.phone}">${safe.phone}</a></td></tr>
+      </table>
+      ${
+        safe.message
+          ? `<div style="margin-top: 16px; padding: 16px; background: #f8f9fa; border-left: 3px solid #5BC0EB; border-radius: 4px;">${safe.message}</div>`
+          : `<p style="color: #5b6570; margin-top: 16px;"><em>No message — customer just left contact details.</em></p>`
+      }
+    </div>
+  `;
+}
+
+export function renderCustomerVehicleEnquiryConfirmation(
+  name: string,
+  vehicle: { year: number; make: string; model: string },
+): string {
+  const safeName = escapeHtml(name);
+  const safeMake = escapeHtml(vehicle.make);
+  const safeModel = escapeHtml(vehicle.model);
+  return emailShell(
+    "Thanks for your enquiry",
+    `
+      <p>Kia ora ${safeName},</p>
+      <p>We've received your enquiry about the <strong>${vehicle.year} ${safeMake} ${safeModel}</strong> and will be in touch shortly.</p>
+      <p>If your enquiry is urgent, please call us on <a href="tel:0204190 7335" style="color: #5BC0EB;">020 4190 7335</a>.</p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
 }
 
 interface SellCarEnquiry {

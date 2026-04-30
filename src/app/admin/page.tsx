@@ -5,6 +5,7 @@ async function getCounts() {
   const supabase = createClient();
   const tables = [
     "contact_enquiries",
+    "vehicle_enquiries",
     "sell_car_enquiries",
     "newsletter_subscribers",
     "vehicles",
@@ -32,6 +33,7 @@ async function getRecentEnquiries() {
 
 const cards = [
   { table: "contact_enquiries", label: "Contact Enquiries", href: "/admin/contact" },
+  { table: "vehicle_enquiries", label: "Vehicle Enquiries", href: "/admin/vehicle-enquiries" },
   { table: "sell_car_enquiries", label: "Sell Car Requests", href: "/admin/sell-requests" },
   { table: "newsletter_subscribers", label: "Newsletter Subscribers", href: "/admin/subscribers" },
   { table: "vehicles", label: "Vehicles in Inventory", href: "/admin/vehicles" },

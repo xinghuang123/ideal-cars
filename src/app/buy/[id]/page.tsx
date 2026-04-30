@@ -8,6 +8,7 @@ import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
 import CinCard from "@/components/cars/CinCard";
 import BcgSection from "@/components/cars/BcgSection";
+import VehicleEnquiryForm from "@/components/cars/VehicleEnquiryForm";
 
 interface CarDetailPageProps {
   params: Promise<{ id: string }>;
@@ -23,9 +24,28 @@ export async function generateMetadata({
     return { title: "Car Not Found" };
   }
 
+  const title = `${car.year} ${car.make} ${car.model}`;
+  const priceLabel = `$${car.price.toLocaleString("en-NZ")}`;
+  const description =
+    car.description.length > 160
+      ? `${car.description.slice(0, 157)}...`
+      : car.description;
+
   return {
-    title: `${car.year} ${car.make} ${car.model}`,
-    description: car.description,
+    title,
+    description: `${priceLabel} · ${car.mileage.toLocaleString("en-NZ")}km · ${car.fuelType} · ${car.transmission}. ${description}`,
+    openGraph: {
+      title: `${title} — ${priceLabel}`,
+      description: car.description,
+      images: car.images.length > 0 ? [{ url: car.images[0] }] : undefined,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} — ${priceLabel}`,
+      description: car.description,
+      images: car.images.length > 0 ? [car.images[0]] : undefined,
+    },
   };
 }
 
@@ -289,18 +309,17 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             {/* Right column: CTA */}
             <div className="lg:col-span-1">
               <div className="sticky top-8 space-y-4 rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-navy">Interested?</h2>
-                <p className="text-sm text-silver-dark">
-                  Get in touch with our team about this {car.year} {car.make}{" "}
-                  {car.model}.
-                </p>
+                <div>
+                  <h2 className="text-xl font-bold text-navy">Enquire about this car</h2>
+                  <p className="mt-1 text-sm text-silver-dark">
+                    Send us your details and we&apos;ll get back to you shortly.
+                  </p>
+                </div>
 
-                <Link
-                  href={`/contact?vehicle=${encodeURIComponent(`${car.year} ${car.make} ${car.model}`)}`}
-                  className="flex w-full items-center justify-center rounded-lg bg-accent px-5 py-3 text-base font-semibold text-white transition-colors duration-200 hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2"
-                >
-                  Enquire Now
-                </Link>
+                <VehicleEnquiryForm
+                  vehicleId={car.id}
+                  vehicleLabel={`${car.year} ${car.make} ${car.model}`}
+                />
 
                 <Link
                   href={`/finance?vehicle=${encodeURIComponent(`${car.year} ${car.make} ${car.model}`)}`}
@@ -311,7 +330,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
                 <div className="mt-4 rounded-lg bg-gray-50 p-4 text-center">
                   <p className="text-xs text-silver-dark">
-                    Call us directly
+                    Or call us directly
                   </p>
                   <a
                     href="tel:02041907335"
