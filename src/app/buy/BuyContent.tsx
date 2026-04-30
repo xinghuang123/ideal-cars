@@ -6,10 +6,14 @@ import { Car, CarFilters as CarFiltersType } from "@/types/car";
 import Container from "@/components/ui/Container";
 import CarFilters from "@/components/cars/CarFilters";
 import CarGrid from "@/components/cars/CarGrid";
+import Pagination from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 12;
 
 export default function BuyContent({ allCars }: { allCars: Car[] }) {
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<CarFiltersType>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const initial: CarFiltersType = {};
@@ -117,12 +121,32 @@ export default function BuyContent({ allCars }: { allCars: Car[] }) {
     return result;
   }, [allCars, filters]);
 
+  // Reset to first page whenever the filtered set changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCars.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pagedCars = filteredCars.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
+
   return (
     <section className="bg-gray-50 py-10 sm:py-14">
       <Container>
         <p className="mb-6 text-sm font-medium text-silver-dark">
           Showing{" "}
-          <span className="font-bold text-navy">{filteredCars.length}</span>{" "}
+          <span className="font-bold text-navy">
+            {filteredCars.length === 0
+              ? 0
+              : `${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(
+                  safePage * PAGE_SIZE,
+                  filteredCars.length,
+                )}`}
+          </span>{" "}
+          of <span className="font-bold text-navy">{filteredCars.length}</span>{" "}
           vehicle{filteredCars.length !== 1 ? "s" : ""}
         </p>
 
@@ -132,7 +156,12 @@ export default function BuyContent({ allCars }: { allCars: Car[] }) {
           </aside>
 
           <div className="flex-1">
-            <CarGrid cars={filteredCars} />
+            <CarGrid cars={pagedCars} />
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </Container>
