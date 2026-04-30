@@ -242,6 +242,104 @@ export function renderVehicleEnquiryEmail(e: VehicleEnquiry): string {
   `;
 }
 
+interface ReminderArgs {
+  fullName: string | null;
+  vehicle: { year: number; make: string; model: string };
+  dueDate: string;
+  daysUntil: number;
+}
+
+function reminderShell(
+  title: string,
+  intro: string,
+  vehicle: { year: number; make: string; model: string },
+  dueDate: string,
+  daysUntil: number,
+  cta: string,
+): string {
+  const safeMake = escapeHtml(vehicle.make);
+  const safeModel = escapeHtml(vehicle.model);
+  const niceDate = new Date(dueDate).toLocaleDateString("en-NZ", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const urgency =
+    daysUntil <= 0
+      ? `<strong style="color: #b91c1c;">overdue</strong>`
+      : daysUntil <= 7
+        ? `<strong style="color: #b45309;">due in ${daysUntil} day${daysUntil === 1 ? "" : "s"}</strong>`
+        : `due in ${daysUntil} days`;
+  return emailShell(
+    title,
+    `
+      <p>${intro}</p>
+      <div style="margin: 16px 0; padding: 16px; background: #f8f9fa; border-left: 3px solid #5BC0EB; border-radius: 4px;">
+        <p style="margin: 0; font-weight: 600;">${vehicle.year} ${safeMake} ${safeModel}</p>
+        <p style="margin: 4px 0 0; color: #5b6570;">${cta} ${niceDate} (${urgency}).</p>
+      </div>
+      <p>Reply to this email or call us on <a href="tel:0204190 7335" style="color: #5BC0EB;">020 4190 7335</a> to book in.</p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
+}
+
+export function renderServiceReminderEmail(args: ReminderArgs): string {
+  const safe = args.fullName ? escapeHtml(args.fullName.split(" ")[0]) : "there";
+  return reminderShell(
+    "Service reminder",
+    `Kia ora ${safe},`,
+    args.vehicle,
+    args.dueDate,
+    args.daysUntil,
+    "Your next service is",
+  );
+}
+
+export function renderWofReminderEmail(args: ReminderArgs): string {
+  const safe = args.fullName ? escapeHtml(args.fullName.split(" ")[0]) : "there";
+  return reminderShell(
+    "WoF reminder",
+    `Kia ora ${safe},`,
+    args.vehicle,
+    args.dueDate,
+    args.daysUntil,
+    "The Warrant of Fitness expires",
+  );
+}
+
+export function renderRegoReminderEmail(args: ReminderArgs): string {
+  const safe = args.fullName ? escapeHtml(args.fullName.split(" ")[0]) : "there";
+  return reminderShell(
+    "Rego reminder",
+    `Kia ora ${safe},`,
+    args.vehicle,
+    args.dueDate,
+    args.daysUntil,
+    "Vehicle registration expires",
+  );
+}
+
+export function renderCustomerWelcomeEmail(fullName: string | null): string {
+  const safe = fullName ? escapeHtml(fullName) : "there";
+  return emailShell(
+    "Welcome to Ideal Cars",
+    `
+      <p>Kia ora ${safe},</p>
+      <p>Thanks for creating an Ideal Cars account.</p>
+      <p>You can now use your account to:</p>
+      <ul style="line-height: 1.7;">
+        <li>Track vehicles you've purchased from us — service history all in one place</li>
+        <li>Add cars you bought elsewhere so we can service them too</li>
+        <li>Review your finance applications and their status</li>
+        <li>Get reminders before your WoF, rego, or next service is due</li>
+      </ul>
+      <p>Sign in any time at <a href="https://idealcarsltd.co.nz/login" style="color: #5BC0EB;">idealcarsltd.co.nz/login</a>.</p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
+}
+
 export function renderCustomerVehicleEnquiryConfirmation(
   name: string,
   vehicle: { year: number; make: string; model: string },

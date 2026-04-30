@@ -3,7 +3,11 @@ import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import FinanceCalculator from "@/components/forms/FinanceCalculator";
+import FinanceApplicationForm from "@/components/forms/FinanceApplicationForm";
 import FinanceFAQ from "@/app/finance/FinanceFAQ";
+import { getCurrentCustomer } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Car Finance | Ideal Cars",
@@ -38,7 +42,8 @@ const benefits = [
   },
 ];
 
-export default function FinancePage() {
+export default async function FinancePage() {
+  const customer = await getCurrentCustomer();
   return (
     <>
       <PageHeader
@@ -85,6 +90,23 @@ export default function FinancePage() {
 
           <div className="mx-auto max-w-4xl">
             <FinanceCalculator />
+          </div>
+        </Container>
+      </section>
+
+      {/* Finance Application */}
+      <section className="py-12 sm:py-16">
+        <Container>
+          <SectionHeading
+            title="Apply for Finance"
+            subtitle="Pre-approval is fast and obligation-free. We'll be in touch within one business day."
+          />
+          <div className="mx-auto max-w-3xl">
+            <FinanceApplicationForm
+              defaultName={customer?.profile?.full_name ?? ""}
+              defaultEmail={customer?.email ?? ""}
+              defaultPhone={customer?.profile?.phone ?? ""}
+            />
           </div>
         </Container>
       </section>

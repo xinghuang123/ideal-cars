@@ -6,13 +6,23 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { navLinks } from "./Navbar";
+import { signOut } from "@/app/auth/actions";
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  userEmail: string | null;
+  userName: string | null;
+  isAdmin: boolean;
 }
 
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu({
+  isOpen,
+  onClose,
+  userEmail,
+  userName,
+  isAdmin,
+}: MobileMenuProps) {
   const pathname = usePathname();
 
   // Prevent body scroll when menu is open
@@ -115,15 +125,49 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </ul>
         </nav>
 
-        {/* Login button at bottom of mobile menu */}
         <div className="absolute bottom-0 left-0 right-0 border-t border-navy-light p-4">
-          <Link
-            href="/login"
-            onClick={onClose}
-            className="flex w-full items-center justify-center rounded-md border border-accent px-4 py-2.5 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-navy"
-          >
-            Login
-          </Link>
+          {userEmail ? (
+            <div className="space-y-2">
+              <div className="rounded-md bg-navy-light px-3 py-2">
+                <p className="truncate text-sm font-medium text-silver-light">
+                  {userName ?? userEmail}
+                </p>
+                <p className="truncate text-xs text-silver">{userEmail}</p>
+              </div>
+              <Link
+                href={isAdmin ? "/admin" : "/account"}
+                onClick={onClose}
+                className="flex w-full items-center justify-center rounded-md border border-accent px-4 py-2.5 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-navy"
+              >
+                {isAdmin ? "Admin Dashboard" : "My Account"}
+              </Link>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="flex w-full items-center justify-center rounded-md border border-silver px-4 py-2.5 text-sm font-medium text-silver-light transition-colors hover:bg-navy-light"
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/signup"
+                onClick={onClose}
+                className="flex w-full items-center justify-center rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-navy transition-colors hover:bg-accent-dark"
+              >
+                Sign Up
+              </Link>
+              <Link
+                href="/login"
+                onClick={onClose}
+                className="flex w-full items-center justify-center rounded-md border border-accent px-4 py-2.5 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-navy"
+              >
+                Login
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>
