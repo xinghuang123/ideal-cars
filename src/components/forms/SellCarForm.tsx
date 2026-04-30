@@ -6,12 +6,7 @@ import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import { carMakes, fuelTypes, transmissionTypes } from "@/data/makes";
-import { createClient } from "@/lib/supabase/client";
-import type {
-  FuelType,
-  TransmissionType,
-  SellCondition,
-} from "@/types/database";
+import { submitSellCarEnquiry } from "@/app/sell/actions";
 
 interface FormData {
   name: string;
@@ -108,8 +103,7 @@ export default function SellCarForm() {
     setSubmitting(true);
     setSubmitError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.from("sell_car_enquiries").insert({
+    const result = await submitSellCarEnquiry({
       name: formData.name.trim(),
       email: formData.email.trim(),
       phone: formData.phone.trim(),
@@ -117,21 +111,19 @@ export default function SellCarForm() {
       model: formData.model.trim(),
       year: Number(formData.year),
       mileage: Number(formData.mileage),
-      fuel_type: formData.fuelType as FuelType,
-      transmission: formData.transmission as TransmissionType,
-      condition: formData.condition as SellCondition,
+      fuelType: formData.fuelType,
+      transmission: formData.transmission,
+      condition: formData.condition,
       description: formData.description.trim() || null,
-      expected_price: formData.expectedPrice
+      expectedPrice: formData.expectedPrice
         ? Number(formData.expectedPrice)
         : null,
     });
 
     setSubmitting(false);
 
-    if (error) {
-      setSubmitError(
-        "Sorry, we could not submit your valuation request. Please try again or call us directly.",
-      );
+    if (result.error) {
+      setSubmitError(result.error);
       return;
     }
 

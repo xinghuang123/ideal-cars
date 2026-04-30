@@ -5,8 +5,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
-import { createClient } from "@/lib/supabase/client";
-import type { EnquirySubject } from "@/types/database";
+import { submitContactEnquiry } from "@/app/contact/actions";
 
 interface ContactFormData {
   name: string;
@@ -82,21 +81,18 @@ export default function ContactForm() {
     setSubmitting(true);
     setSubmitError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.from("contact_enquiries").insert({
+    const result = await submitContactEnquiry({
       name: formData.name.trim(),
       email: formData.email.trim(),
       phone: formData.phone.trim(),
-      subject: formData.subject as EnquirySubject,
+      subject: formData.subject,
       message: formData.message.trim(),
     });
 
     setSubmitting(false);
 
-    if (error) {
-      setSubmitError(
-        "Sorry, we could not send your message. Please try again or call us directly.",
-      );
+    if (result.error) {
+      setSubmitError(result.error);
       return;
     }
 
