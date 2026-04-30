@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { embed, vehicleEmbeddingText } from "@/lib/embeddings";
 import type {
   BodyType,
   FuelType,
@@ -55,6 +56,39 @@ function parseVehicleForm(formData: FormData) {
   };
 }
 
+async function regenerateEmbedding(vehicleId: string, data: ReturnType<typeof parseVehicleForm>) {
+  if (data.year === null || !data.make || !data.model) return;
+  try {
+    const text = vehicleEmbeddingText({
+      year: data.year,
+      make: data.make,
+      model: data.model,
+      body_type: data.body_type,
+      fuel_type: data.fuel_type,
+      transmission: data.transmission,
+      drive_type: data.drive_type,
+      colour: data.colour,
+      engine_size: data.engine_size,
+      mileage: data.mileage,
+      price: data.price,
+      description: data.description,
+      features: data.features,
+    });
+    const vec = await embed(text);
+    const supabase = createClient();
+    await supabase
+      .from("vehicles")
+      .update({
+        embedding: vec as unknown as string,
+        embedding_text: text,
+        embedding_updated_at: new Date().toISOString(),
+      })
+      .eq("id", vehicleId);
+  } catch (err) {
+    console.error("Failed to regenerate embedding for vehicle", vehicleId, err);
+  }
+}
+
 export async function createVehicle(formData: FormData) {
   const supabase = createClient();
   const data = parseVehicleForm(formData);
@@ -67,6 +101,8 @@ export async function createVehicle(formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+
+  await regenerateEmbedding(created.id, data);
 
   revalidatePath("/admin/vehicles");
   revalidatePath("/admin");
@@ -81,6 +117,8 @@ export async function updateVehicle(id: string, formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+
+  await regenerateEmbedding(id, data);
 
   revalidatePath("/admin/vehicles");
   revalidatePath("/admin");

@@ -9,6 +9,11 @@ const nextConfig = {
       },
     ],
   },
+  // @xenova/transformers ships native binaries / large models that
+  // shouldn't be processed by webpack — keep them external on the server.
+  experimental: {
+    serverComponentsExternalPackages: ["@xenova/transformers"],
+  },
 };
 
 export default nextConfig;
