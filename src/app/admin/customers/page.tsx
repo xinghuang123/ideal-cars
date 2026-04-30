@@ -23,8 +23,11 @@ export default async function CustomersPage() {
     )
     .order("created_at", { ascending: false });
 
+  if (error) {
+    console.error("Failed to load customers", error);
+  }
+
   // Pull auth.users emails via the admin schema (RLS-bypassing).
-  // Fall back gracefully if the call fails.
   let emailById: Record<string, string> = {};
   try {
     const { createAdminClient } = await import("@/lib/supabase/admin");
@@ -44,23 +47,28 @@ export default async function CustomersPage() {
   }
 
   const rows = (profiles ?? []) as CustomerRow[];
+  const hasError = Boolean(error);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-navy">Customers</h1>
         <p className="mt-1 text-sm text-silver-dark">
-          {rows.length} registered customer{rows.length === 1 ? "" : "s"}
+          {hasError
+            ? "Couldn't load the customer list."
+            : `${rows.length} registered customer${rows.length === 1 ? "" : "s"}`}
         </p>
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          Failed to load: {error.message}
+      {hasError ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800">
+          <p className="font-semibold">Something went wrong loading customers.</p>
+          <p className="mt-1">
+            Please refresh the page in a moment. If the problem persists, check
+            the server logs.
+          </p>
         </div>
-      )}
-
-      {rows.length === 0 ? (
+      ) : rows.length === 0 ? (
         <div className="rounded-xl border border-silver bg-white p-12 text-center text-silver-dark">
           No customers yet. Customers appear here after they sign up.
         </div>
@@ -91,8 +99,7 @@ export default async function CustomersPage() {
                     )}
                   </p>
                   <p className="mt-1 text-xs text-silver-dark">
-                    {[c.city, c.region].filter(Boolean).join(", ") || "—"} ·
-                    {" "}
+                    {[c.city, c.region].filter(Boolean).join(", ") || "—"} ·{" "}
                     {c.customer_vehicles?.[0]?.count ?? 0} vehicle
                     {(c.customer_vehicles?.[0]?.count ?? 0) === 1 ? "" : "s"}
                   </p>
