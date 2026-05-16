@@ -23,7 +23,7 @@ export default async function AdminLayout({
 
   // Defense in depth — middleware already gates /admin/*, but if it ever
   // misfires (matcher bug, deploy hiccup) the layout itself enforces.
-  if (!PUBLIC_ADMIN_PATHS.has(pathname)) {
+  if (pathname && !PUBLIC_ADMIN_PATHS.has(pathname)) {
     const supabase = createClient();
     const { data } = await supabase.auth.getUser();
     const role =
