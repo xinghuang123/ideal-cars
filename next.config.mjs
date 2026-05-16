@@ -9,10 +9,15 @@ const nextConfig = {
       },
     ],
   },
-  // @xenova/transformers ships native binaries / large models that
-  // shouldn't be processed by webpack — keep them external on the server.
+  // Keep Node.js-only packages out of the webpack client bundle.
   experimental: {
-    serverComponentsExternalPackages: ["@xenova/transformers"],
+    serverComponentsExternalPackages: [
+      "@xenova/transformers",
+      "@react-pdf/renderer",
+      "mammoth",
+      "pg",
+      "sharp",
+    ],
   },
 };
 
