@@ -165,7 +165,7 @@ export default async function CustomerDetailPage({
 
         <div className="mt-6 border-t border-silver pt-5">
           <h3 className="mb-3 text-sm font-semibold text-navy">
-            Assign a dealer vehicle to this customer
+            Add a vehicle to this customer
           </h3>
           <AssignVehicleForm
             customerId={params.id}

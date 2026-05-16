@@ -50,6 +50,45 @@ export async function assignDealerVehicleToCustomer(
   return { ok: true };
 }
 
+interface ExternalVehicleInput {
+  customerId: string;
+  year: number;
+  make: string;
+  model: string;
+  rego: string | null;
+  vin: string | null;
+  colour: string | null;
+  purchase_date: string | null;
+  notes: string | null;
+}
+
+export async function addExternalVehicleToCustomer(
+  input: ExternalVehicleInput,
+): Promise<{ ok?: true; error?: string }> {
+  if (!input.make || !input.model) {
+    return { error: "Make and model are required." };
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.from("customer_vehicles").insert({
+    customer_id: input.customerId,
+    purchased_from_dealer: false,
+    year: input.year,
+    make: input.make,
+    model: input.model,
+    rego: input.rego,
+    vin: input.vin,
+    colour: input.colour,
+    purchase_date: input.purchase_date,
+    notes: input.notes,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath(`/admin/customers/${input.customerId}`);
+  revalidatePath(`/admin/customers`);
+  return { ok: true };
+}
+
 interface ServiceRecordInput {
   customerVehicleId: string;
   service_date: string;
