@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import AssignVehicleForm from "./AssignVehicleForm";
 import AddServiceForm from "./AddServiceForm";
+import AddRepairForm from "./AddRepairForm";
 
 export const dynamic = "force-dynamic";
 
@@ -155,8 +156,9 @@ export default async function CustomerDetailPage({
                     </p>
                   )}
                 </div>
-                <div className="mt-3">
+                <div className="mt-3 flex flex-wrap gap-4">
                   <AddServiceForm customerVehicleId={v.id} />
+                  <AddRepairForm customerVehicleId={v.id} />
                 </div>
               </li>
             ))}

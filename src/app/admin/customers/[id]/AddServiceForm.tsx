@@ -8,12 +8,11 @@ import { addServiceRecord } from "../actions";
 
 const SERVICE_TYPES = [
   "Service",
-  "Repair",
   "WoF",
-  "Tyres",
-  "Brakes",
-  "Battery",
   "Cambelt",
+  "Tyres",
+  "Battery",
+  "Inspection",
   "Other",
 ];
 
@@ -71,28 +70,13 @@ export default function AddServiceForm({
 
   if (!open) {
     return (
-      <div className="flex flex-wrap gap-4">
-        <button
-          type="button"
-          onClick={() => {
-            setValues({ ...values, service_type: "Service" });
-            setOpen(true);
-          }}
-          className="text-sm font-medium text-accent hover:underline"
-        >
-          + Add service record
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setValues({ ...values, service_type: "Repair" });
-            setOpen(true);
-          }}
-          className="text-sm font-medium text-accent hover:underline"
-        >
-          + Add repair record
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-sm font-medium text-accent hover:underline"
+      >
+        + Add service record
+      </button>
     );
   }
 

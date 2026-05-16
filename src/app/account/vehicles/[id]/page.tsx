@@ -26,12 +26,22 @@ interface CustomerVehicle {
 
 interface ServiceRecord {
   id: string;
+  record_type: "service" | "repair";
   service_date: string;
   service_type: string;
   mileage: number | null;
   description: string | null;
   cost: number | null;
+  parts_cost: number | null;
+  labour_cost: number | null;
+  diagnosis: string | null;
+  work_done: string | null;
+  warranty_until: string | null;
   performed_by: string | null;
+}
+
+function fmtMoney(n: number): string {
+  return `$${Number(n).toLocaleString("en-NZ", { minimumFractionDigits: 2 })}`;
 }
 
 function fmtDate(d: string | null): string {
@@ -64,7 +74,9 @@ export default async function VehicleDetailPage({
 
   const { data: services } = await supabase
     .from("service_records")
-    .select("id, service_date, service_type, mileage, description, cost, performed_by")
+    .select(
+      "id, record_type, service_date, service_type, mileage, description, cost, parts_cost, labour_cost, diagnosis, work_done, warranty_until, performed_by",
+    )
     .eq("customer_vehicle_id", params.id)
     .order("service_date", { ascending: false });
 
@@ -127,10 +139,12 @@ export default async function VehicleDetailPage({
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold text-navy">Service history</h2>
+        <h2 className="mb-3 text-lg font-semibold text-navy">
+          Service & Repair history
+        </h2>
         {records.length === 0 ? (
           <div className="rounded-xl border border-silver bg-white p-8 text-center text-sm text-silver-dark">
-            No service records yet. Once we service this vehicle, the records will
+            No records yet. Once we service or repair this vehicle, it&apos;ll
             appear here.
           </div>
         ) : (
@@ -141,22 +155,75 @@ export default async function VehicleDetailPage({
                 className="rounded-lg border border-silver bg-white p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-navy">{r.service_type}</p>
-                    <p className="text-sm text-silver-dark">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                          r.record_type === "repair"
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "bg-accent/10 text-accent border border-accent/30"
+                        }`}
+                      >
+                        {r.record_type === "repair" ? "Repair" : "Service"}
+                      </span>
+                      <p className="font-semibold text-navy">{r.service_type}</p>
+                    </div>
+                    <p className="mt-1 text-sm text-silver-dark">
                       {fmtDate(r.service_date)}
                       {r.mileage ? ` · ${r.mileage.toLocaleString("en-NZ")} km` : ""}
                       {r.performed_by ? ` · ${r.performed_by}` : ""}
                     </p>
                   </div>
                   {r.cost !== null && (
-                    <p className="font-semibold text-navy">
-                      ${Number(r.cost).toLocaleString("en-NZ", { minimumFractionDigits: 2 })}
-                    </p>
+                    <p className="font-semibold text-navy">{fmtMoney(r.cost)}</p>
                   )}
                 </div>
-                {r.description && (
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-navy">{r.description}</p>
+                {r.record_type === "repair" ? (
+                  <div className="mt-2 space-y-1.5 text-sm text-navy">
+                    {r.diagnosis && (
+                      <p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-silver-dark">
+                          Diagnosis:
+                        </span>{" "}
+                        <span className="whitespace-pre-wrap">{r.diagnosis}</span>
+                      </p>
+                    )}
+                    {r.work_done && (
+                      <p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-silver-dark">
+                          Work done:
+                        </span>{" "}
+                        <span className="whitespace-pre-wrap">{r.work_done}</span>
+                      </p>
+                    )}
+                    {(r.parts_cost !== null || r.labour_cost !== null) && (
+                      <p className="text-xs text-silver-dark">
+                        {r.parts_cost !== null
+                          ? `Parts: ${fmtMoney(r.parts_cost)}`
+                          : ""}
+                        {r.parts_cost !== null && r.labour_cost !== null
+                          ? " · "
+                          : ""}
+                        {r.labour_cost !== null
+                          ? `Labour: ${fmtMoney(r.labour_cost)}`
+                          : ""}
+                      </p>
+                    )}
+                    {r.warranty_until && (
+                      <p className="text-xs text-silver-dark">
+                        Warranty until{" "}
+                        <span className="font-medium text-navy">
+                          {fmtDate(r.warranty_until)}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  r.description && (
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-navy">
+                      {r.description}
+                    </p>
+                  )
                 )}
               </li>
             ))}

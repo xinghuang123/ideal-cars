@@ -108,6 +108,7 @@ export async function addServiceRecord(input: ServiceRecordInput) {
 
   const { error } = await supabase.from("service_records").insert({
     customer_vehicle_id: input.customerVehicleId,
+    record_type: "service",
     service_date: input.service_date,
     service_type: input.service_type,
     mileage: input.mileage,
@@ -128,6 +129,47 @@ export async function addServiceRecord(input: ServiceRecordInput) {
       next_service_due_date: input.next_service_due_date,
     })
     .eq("id", input.customerVehicleId);
+
+  revalidatePath(`/admin/customers`);
+  return { ok: true };
+}
+
+interface RepairRecordInput {
+  customerVehicleId: string;
+  service_date: string;
+  service_type: string;
+  mileage: number | null;
+  diagnosis: string | null;
+  work_done: string | null;
+  parts_cost: number | null;
+  labour_cost: number | null;
+  cost: number | null;
+  warranty_until: string | null;
+  performed_by: string | null;
+}
+
+export async function addRepairRecord(input: RepairRecordInput) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { error } = await supabase.from("service_records").insert({
+    customer_vehicle_id: input.customerVehicleId,
+    record_type: "repair",
+    service_date: input.service_date,
+    service_type: input.service_type,
+    mileage: input.mileage,
+    diagnosis: input.diagnosis,
+    work_done: input.work_done,
+    parts_cost: input.parts_cost,
+    labour_cost: input.labour_cost,
+    cost: input.cost,
+    warranty_until: input.warranty_until,
+    performed_by: input.performed_by,
+    created_by: user?.id ?? null,
+  });
+  if (error) return { error: error.message };
 
   revalidatePath(`/admin/customers`);
   return { ok: true };
