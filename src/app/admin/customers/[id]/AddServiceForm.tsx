@@ -71,13 +71,28 @@ export default function AddServiceForm({
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="text-sm font-medium text-accent hover:underline"
-      >
-        + Add service record
-      </button>
+      <div className="flex flex-wrap gap-4">
+        <button
+          type="button"
+          onClick={() => {
+            setValues({ ...values, service_type: "Service" });
+            setOpen(true);
+          }}
+          className="text-sm font-medium text-accent hover:underline"
+        >
+          + Add service record
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setValues({ ...values, service_type: "Repair" });
+            setOpen(true);
+          }}
+          className="text-sm font-medium text-accent hover:underline"
+        >
+          + Add repair record
+        </button>
+      </div>
     );
   }
 
