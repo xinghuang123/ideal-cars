@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { getVehicleById } from "@/lib/vehicles";
 import { formatPrice, formatMileage } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
@@ -10,6 +9,7 @@ import Badge from "@/components/ui/Badge";
 import CinCard from "@/components/cars/CinCard";
 import BcgSection from "@/components/cars/BcgSection";
 import VehicleEnquiryForm from "@/components/cars/VehicleEnquiryForm";
+import VehicleGallery from "@/components/cars/VehicleGallery";
 
 interface CarDetailPageProps {
   params: Promise<{ id: string }>;
@@ -114,51 +114,20 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
         <Container>
           {/* Image gallery */}
           <div className="mb-8">
-            {/* Main image */}
-            <div className="relative h-64 overflow-hidden rounded-xl bg-gray-200 sm:h-80 md:h-96 lg:h-[28rem]">
-              {car.images.length > 0 ? (
-                <Image
-                  src={car.images[0]}
-                  alt={`${car.year} ${car.make} ${car.model}`}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 1024px"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-lg font-medium text-gray-500">
-                  {car.year} {car.make} {car.model}
-                </div>
-              )}
-              {/* Status badge overlay */}
-              {car.status !== "available" && (
-                <Badge
-                  variant={statusBadge.variant}
-                  className="absolute top-4 left-4 text-sm uppercase tracking-wide"
-                >
-                  {statusBadge.label}
-                </Badge>
-              )}
-            </div>
-            {/* Thumbnail row */}
-            {car.images.length > 1 && (
-              <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-6">
-                {car.images.slice(1).map((url, idx) => (
-                  <div
-                    key={idx}
-                    className="relative h-16 overflow-hidden rounded-lg bg-gray-200 sm:h-20"
+            <VehicleGallery
+              images={car.images}
+              alt={`${car.year} ${car.make} ${car.model}`}
+              topLeftOverlay={
+                car.status !== "available" ? (
+                  <Badge
+                    variant={statusBadge.variant}
+                    className="text-sm uppercase tracking-wide"
                   >
-                    <Image
-                      src={url}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+                    {statusBadge.label}
+                  </Badge>
+                ) : null
+              }
+            />
           </div>
 
           {/* Title section */}
