@@ -57,19 +57,65 @@ export default async function EditVehiclePage({
               Required for used vehicle sale (NZ Fair Trading Act).
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={`/admin/vehicles/${vehicle.id}/cin`}
               className="rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-white"
             >
               Edit CIN {vehicle.cin ? "✓" : ""}
             </Link>
+            {vehicle.cin && (
+              <a
+                href={`/api/vehicles/${vehicle.id}/cin.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-silver bg-white px-4 py-2 text-sm font-semibold text-navy hover:border-accent hover:text-accent"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                  />
+                </svg>
+                Preview CIN PDF
+              </a>
+            )}
             <Link
               href={`/admin/vehicles/${vehicle.id}/bcg`}
               className="rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-white"
             >
               Edit BCG {vehicle.bcg ? "✓" : ""}
             </Link>
+            {vehicle.bcg && (
+              <a
+                href={`/api/vehicles/${vehicle.id}/bcg.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-silver bg-white px-4 py-2 text-sm font-semibold text-navy hover:border-accent hover:text-accent"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                  />
+                </svg>
+                Preview BCG PDF
+              </a>
+            )}
           </div>
         </div>
       </div>
