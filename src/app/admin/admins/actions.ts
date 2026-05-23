@@ -30,20 +30,32 @@ export async function inviteAdmin(formData: FormData) {
 
   const admin = createAdminClient();
 
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${siteUrl()}/admin/set-password`,
-  });
+  // Atomically create the user with admin role baked into app_metadata.
+  // email_confirm: true skips the signup-confirmation step — we use the
+  // recovery flow below to let the new admin set their password.
+  const { data: createData, error: createError } =
+    await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      app_metadata: { role: "admin" },
+    });
 
-  if (error || !data?.user) {
-    return { error: error?.message ?? "Failed to invite user." };
+  if (createError || !createData?.user) {
+    return { error: createError?.message ?? "Failed to create user." };
   }
 
-  const { error: roleError } = await admin.auth.admin.updateUserById(
-    data.user.id,
-    { app_metadata: { role: "admin" } },
-  );
-  if (roleError) {
-    return { error: `Invite sent but could not set role: ${roleError.message}` };
+  // Send the recovery email so the new admin can set their password.
+  // generateLink auto-sends via Supabase's configured SMTP.
+  const { error: linkError } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email,
+    options: { redirectTo: `${siteUrl()}/admin/set-password` },
+  });
+
+  if (linkError) {
+    return {
+      error: `Admin created but invite email failed: ${linkError.message}`,
+    };
   }
 
   revalidatePath("/admin/admins");

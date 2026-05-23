@@ -28,40 +28,35 @@ export default function InviteAdminForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 sm:flex-row sm:items-end"
-    >
-      <div className="flex-1">
-        <Input
-          label="Email address"
-          name="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          placeholder="newadmin@example.com"
-        />
-      </div>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Sending..." : "Send Invite"}
-      </Button>
-      {(error || success) && (
-        <div className="w-full sm:order-last sm:w-full">
-          {error && (
-            <p
-              role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
-            >
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-              {success}
-            </p>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="flex-1">
+          <Input
+            label="Email address"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="newadmin@example.com"
+          />
         </div>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Sending..." : "Send Invite"}
+        </Button>
+      </div>
+      {error && (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
+          {error}
+        </p>
+      )}
+      {success && (
+        <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          {success}
+        </p>
       )}
     </form>
   );
