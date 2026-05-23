@@ -177,10 +177,14 @@ export function renderContactEnquiryEmail(e: ContactEnquiry): string {
 }
 
 function emailShell(title: string, body: string): string {
+  const siteUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://idealcarsltd.co.nz"
+  ).replace(/\/$/, "");
+  const logoUrl = `${siteUrl}/images/logo-transparent.png`;
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; color: #1E2A3A;">
-      <div style="background: #1E2A3A; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-        <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px;">IDEAL CARS</h1>
+      <div style="background: #1E2A3A; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <img src="${logoUrl}" alt="Ideal Cars" width="180" style="display: inline-block; max-width: 180px; height: auto;" />
       </div>
       <div style="background: white; padding: 28px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
         <h2 style="color: #1E2A3A; margin-top: 0;">${title}</h2>
