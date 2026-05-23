@@ -117,6 +117,11 @@ export async function sendPasswordRecovery(email: string) {
   return sendRecoveryEmail(email);
 }
 
+function isUserGoneError(message: string | undefined) {
+  if (!message) return false;
+  return /not.?found|does not exist|no rows|user_not_found/i.test(message);
+}
+
 export async function revokeAdmin(userId: string) {
   const me = await requireAdmin();
   if (me.id === userId) {
@@ -126,7 +131,7 @@ export async function revokeAdmin(userId: string) {
   const { error } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { role: null },
   });
-  if (error) {
+  if (error && !isUserGoneError(error.message)) {
     return { error: error.message };
   }
   revalidatePath("/admin/admins");
@@ -140,7 +145,7 @@ export async function deleteAdminUser(userId: string) {
   }
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) {
+  if (error && !isUserGoneError(error.message)) {
     return { error: error.message };
   }
   revalidatePath("/admin/admins");
