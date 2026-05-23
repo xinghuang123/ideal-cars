@@ -34,8 +34,9 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
     const role = (data.user?.app_metadata as Record<string, unknown> | undefined)
       ?.role;
     if (role === "admin") {
-      router.push("/admin");
-      router.refresh();
+      await supabase.auth.signOut();
+      setSubmitting(false);
+      setError("Admin accounts must sign in at /admin/login.");
       return;
     }
 
