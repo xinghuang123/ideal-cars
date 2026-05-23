@@ -15,6 +15,7 @@ interface CustomerVehicle {
   colour: string | null;
   purchased_from_dealer: boolean;
   purchase_date: string | null;
+  purchased_vehicle_id: string | null;
   last_service_date: string | null;
   last_service_mileage: number | null;
   next_service_due_date: string | null;
@@ -72,6 +73,20 @@ export default async function VehicleDetailPage({
   if (!vehicle) notFound();
   const v = vehicle as CustomerVehicle;
 
+  // If the customer bought this from us, pull the dealer vehicle so we can
+  // expose its CIN / BCG PDFs.
+  let hasCin = false;
+  let hasBcg = false;
+  if (v.purchased_vehicle_id) {
+    const { data: dealer } = await supabase
+      .from("vehicles")
+      .select("cin, bcg")
+      .eq("id", v.purchased_vehicle_id)
+      .maybeSingle();
+    hasCin = Boolean(dealer?.cin);
+    hasBcg = Boolean(dealer?.bcg);
+  }
+
   const { data: services } = await supabase
     .from("service_records")
     .select(
@@ -128,6 +143,65 @@ export default async function VehicleDetailPage({
           <p className="mt-1 text-lg font-semibold text-navy">{fmtDate(v.rego_expiry_date)}</p>
         </div>
       </div>
+
+      {(hasCin || hasBcg) && v.purchased_vehicle_id && (
+        <div className="rounded-xl border border-silver bg-white p-5">
+          <h2 className="mb-1 text-sm font-semibold text-navy">
+            Compliance Documents
+          </h2>
+          <p className="mb-3 text-xs text-silver-dark">
+            Issued when you purchased this vehicle. Download for your records.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {hasCin && (
+              <a
+                href={`/api/vehicles/${v.purchased_vehicle_id}/cin.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-white"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                  />
+                </svg>
+                Download CIN as PDF
+              </a>
+            )}
+            {hasBcg && (
+              <a
+                href={`/api/vehicles/${v.purchased_vehicle_id}/bcg.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-white"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                  />
+                </svg>
+                Download BCG as PDF
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end gap-2">
         <Link
