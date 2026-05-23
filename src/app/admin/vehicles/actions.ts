@@ -106,7 +106,7 @@ export async function createVehicle(formData: FormData) {
 
   revalidatePath("/admin/vehicles");
   revalidatePath("/admin");
-  redirect(`/admin/vehicles/${created.id}/edit`);
+  return { vehicleId: created.id as string };
 }
 
 export async function updateVehicle(id: string, formData: FormData) {
