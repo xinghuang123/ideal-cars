@@ -97,6 +97,39 @@ export async function emailCustomer({ to, subject, html }: CustomerEmailArgs) {
   }
 }
 
+/**
+ * Sends an email and reports the outcome so callers (like the admin
+ * invite flow) can surface failures back to the user.
+ */
+export async function sendTransactionalEmail(args: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<{ ok: true } | { error: string }> {
+  const resend = getResend();
+  if (!resend) {
+    return { error: "Email service not configured (RESEND_API_KEY missing)" };
+  }
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: args.to,
+      subject: args.subject,
+      html: args.html,
+    });
+    if (error) {
+      console.error("[email] sendTransactionalEmail failed:", error);
+      return { error: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[email] sendTransactionalEmail threw:", err);
+    return {
+      error: err instanceof Error ? err.message : "Email failed to send",
+    };
+  }
+}
+
 export function escapeHtml(input: string): string {
   return input
     .replace(/&/g, "&amp;")
@@ -317,6 +350,39 @@ export function renderRegoReminderEmail(args: ReminderArgs): string {
     args.dueDate,
     args.daysUntil,
     "Vehicle registration expires",
+  );
+}
+
+export function renderAdminInviteEmail(actionLink: string): string {
+  return emailShell(
+    "You've been invited as an admin",
+    `
+      <p>Kia ora,</p>
+      <p>You've been invited to join the Ideal Cars admin team. Click the button below to set your password and access the admin panel.</p>
+      <p style="margin: 24px 0;">
+        <a href="${actionLink}" style="display: inline-block; background: #5BC0EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Set your password</a>
+      </p>
+      <p style="font-size: 12px; color: #5b6570;">If the button doesn't work, copy and paste this link into your browser:<br/>
+      <a href="${actionLink}" style="color: #5BC0EB; word-break: break-all;">${actionLink}</a></p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
+}
+
+export function renderAdminPasswordResetEmail(actionLink: string): string {
+  return emailShell(
+    "Reset your admin password",
+    `
+      <p>Kia ora,</p>
+      <p>We received a request to reset your password for the Ideal Cars admin panel. Click the button below to set a new password.</p>
+      <p style="margin: 24px 0;">
+        <a href="${actionLink}" style="display: inline-block; background: #5BC0EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Reset password</a>
+      </p>
+      <p style="font-size: 12px; color: #5b6570;">If you didn't request this, you can safely ignore this email.</p>
+      <p style="font-size: 12px; color: #5b6570;">If the button doesn't work, copy and paste this link into your browser:<br/>
+      <a href="${actionLink}" style="color: #5BC0EB; word-break: break-all;">${actionLink}</a></p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
   );
 }
 

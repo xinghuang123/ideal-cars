@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  renderAdminInviteEmail,
+  renderAdminPasswordResetEmail,
+  sendTransactionalEmail,
+} from "@/lib/email";
 
 function siteUrl() {
   return (
@@ -44,18 +49,33 @@ export async function inviteAdmin(formData: FormData) {
     return { error: createError?.message ?? "Failed to create user." };
   }
 
-  // Send the recovery email so the new admin can set their password.
-  // generateLink auto-sends via Supabase's configured SMTP.
-  const { error: linkError } = await admin.auth.admin.generateLink({
-    type: "recovery",
-    email,
-    options: { redirectTo: `${siteUrl()}/admin/set-password` },
+  // Generate a recovery link so the new admin can set their password,
+  // then send it via Resend (Supabase's built-in SMTP isn't reliable on
+  // this project).
+  const { data: linkData, error: linkError } =
+    await admin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo: `${siteUrl()}/admin/set-password` },
+    });
+
+  const actionLink = linkData?.properties?.action_link;
+  if (linkError || !actionLink) {
+    await admin.auth.admin.deleteUser(createData.user.id);
+    return {
+      error: `Failed to generate invite link: ${linkError?.message ?? "no link returned"}`,
+    };
+  }
+
+  const emailResult = await sendTransactionalEmail({
+    to: email,
+    subject: "You've been invited to Ideal Cars admin",
+    html: renderAdminInviteEmail(actionLink),
   });
 
-  if (linkError) {
-    return {
-      error: `Admin created but invite email failed: ${linkError.message}`,
-    };
+  if ("error" in emailResult) {
+    await admin.auth.admin.deleteUser(createData.user.id);
+    return { error: `Invite email failed: ${emailResult.error}` };
   }
 
   revalidatePath("/admin/admins");
@@ -64,13 +84,24 @@ export async function inviteAdmin(formData: FormData) {
 
 async function sendRecoveryEmail(email: string) {
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.generateLink({
+  const { data, error } = await admin.auth.admin.generateLink({
     type: "recovery",
     email,
     options: { redirectTo: `${siteUrl()}/admin/set-password` },
   });
-  if (error) {
-    return { error: error.message };
+  const actionLink = data?.properties?.action_link;
+  if (error || !actionLink) {
+    return {
+      error: `Failed to generate reset link: ${error?.message ?? "no link returned"}`,
+    };
+  }
+  const emailResult = await sendTransactionalEmail({
+    to: email,
+    subject: "Reset your Ideal Cars admin password",
+    html: renderAdminPasswordResetEmail(actionLink),
+  });
+  if ("error" in emailResult) {
+    return { error: `Email failed: ${emailResult.error}` };
   }
   revalidatePath("/admin/admins");
   return { ok: true };
