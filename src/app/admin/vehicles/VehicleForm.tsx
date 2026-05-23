@@ -14,6 +14,14 @@ import {
   transmissionTypes,
 } from "@/data/makes";
 import type { VehicleRow } from "@/types/database";
+import type {
+  BasicConditionGuide,
+  ConsumerInformationNotice,
+} from "@/types/car";
+import CinFields, { defaultCinFromVehicle } from "@/components/admin/CinFields";
+import BcgFields, { defaultBcg } from "@/components/admin/BcgFields";
+import { updateVehicleCin } from "./[id]/cin/actions";
+import { updateVehicleBcg } from "./[id]/bcg/actions";
 import { createVehicle, updateVehicle } from "./actions";
 
 const driveTypes = ["FWD", "RWD", "AWD", "4WD"] as const;
@@ -48,6 +56,35 @@ export default function VehicleForm({
     isEdit ? null : loadDraft(),
   );
   const [draftToast, setDraftToast] = useState<string | null>(null);
+
+  // CIN / BCG collapsible state — only used in the new-vehicle flow.
+  const [cinOpen, setCinOpen] = useState(false);
+  const [bcgOpen, setBcgOpen] = useState(false);
+  const [cin, setCin] = useState<ConsumerInformationNotice | null>(null);
+  const [bcg, setBcg] = useState<BasicConditionGuide | null>(null);
+
+  function openCin() {
+    if (cin === null) {
+      const form = formRef.current
+        ? new FormData(formRef.current)
+        : new FormData();
+      setCin(
+        defaultCinFromVehicle({
+          price: Number(form.get("price")) || 0,
+          mileage: Number(form.get("mileage")) || 0,
+          vin: String(form.get("vin") ?? ""),
+          wof_expiry: String(form.get("wof_expiry") ?? ""),
+          rego_expiry: String(form.get("rego_expiry") ?? ""),
+          fuel_type: String(form.get("fuel_type") ?? "Petrol"),
+        }),
+      );
+    }
+    setCinOpen(true);
+  }
+  function openBcg() {
+    if (bcg === null) setBcg(defaultBcg());
+    setBcgOpen(true);
+  }
 
   useEffect(() => {
     const urls = pendingImages.map((f) => URL.createObjectURL(f));
@@ -139,6 +176,30 @@ export default function VehicleForm({
       try {
         window.localStorage.removeItem(DRAFT_KEY);
       } catch {}
+      // Save CIN if the admin opened that section.
+      if (cin) {
+        const res = await updateVehicleCin(vehicleId, cin);
+        if ("error" in res && res.error) {
+          setError(
+            `Vehicle saved, but CIN failed: ${res.error}. Edit the vehicle to retry.`,
+          );
+          router.push(`/admin/vehicles/${vehicleId}/edit`);
+          router.refresh();
+          return;
+        }
+      }
+      // Save BCG if the admin opened that section.
+      if (bcg) {
+        const res = await updateVehicleBcg(vehicleId, bcg);
+        if ("error" in res && res.error) {
+          setError(
+            `Vehicle saved, but BCG failed: ${res.error}. Edit the vehicle to retry.`,
+          );
+          router.push(`/admin/vehicles/${vehicleId}/edit`);
+          router.refresh();
+          return;
+        }
+      }
       if (pendingImages.length > 0) {
         try {
           await uploadPendingImages(vehicleId);
@@ -440,6 +501,106 @@ export default function VehicleForm({
             )}
           </div>
         </fieldset>
+      )}
+
+      {!isEdit && (
+        <>
+          <details
+            className="overflow-hidden rounded-xl border border-silver bg-white"
+            open={cinOpen}
+            onToggle={(e) => {
+              const open = (e.currentTarget as HTMLDetailsElement).open;
+              if (open) openCin();
+              else setCinOpen(false);
+            }}
+          >
+            <summary className="flex cursor-pointer items-center justify-between gap-3 bg-gray-50 px-5 py-3 text-base font-bold text-navy hover:bg-gray-100">
+              <span>
+                Consumer Information Notice{" "}
+                <span className="text-xs font-normal text-silver-dark">
+                  (optional &mdash; can also be filled in after saving)
+                </span>
+                {cin && (
+                  <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
+                    Will be saved
+                  </span>
+                )}
+              </span>
+              <span className="text-silver-dark">▾</span>
+            </summary>
+            <div className="border-t border-silver p-5">
+              {cin && (
+                <>
+                  <CinFields value={cin} onChange={setCin} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Clear the CIN section? It will not be saved with this vehicle.",
+                        )
+                      ) {
+                        setCin(null);
+                        setCinOpen(false);
+                      }
+                    }}
+                    className="mt-4 text-sm font-medium text-silver-dark underline hover:text-red-600"
+                  >
+                    Clear CIN section
+                  </button>
+                </>
+              )}
+            </div>
+          </details>
+
+          <details
+            className="overflow-hidden rounded-xl border border-silver bg-white"
+            open={bcgOpen}
+            onToggle={(e) => {
+              const open = (e.currentTarget as HTMLDetailsElement).open;
+              if (open) openBcg();
+              else setBcgOpen(false);
+            }}
+          >
+            <summary className="flex cursor-pointer items-center justify-between gap-3 bg-gray-50 px-5 py-3 text-base font-bold text-navy hover:bg-gray-100">
+              <span>
+                Basic Condition Guide{" "}
+                <span className="text-xs font-normal text-silver-dark">
+                  (optional &mdash; can also be filled in after saving)
+                </span>
+                {bcg && (
+                  <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
+                    Will be saved
+                  </span>
+                )}
+              </span>
+              <span className="text-silver-dark">▾</span>
+            </summary>
+            <div className="border-t border-silver p-5">
+              {bcg && (
+                <>
+                  <BcgFields value={bcg} onChange={setBcg} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Clear the BCG section? It will not be saved with this vehicle.",
+                        )
+                      ) {
+                        setBcg(null);
+                        setBcgOpen(false);
+                      }
+                    }}
+                    className="mt-4 text-sm font-medium text-silver-dark underline hover:text-red-600"
+                  >
+                    Clear BCG section
+                  </button>
+                </>
+              )}
+            </div>
+          </details>
+        </>
       )}
 
       <div className="flex flex-wrap gap-3">

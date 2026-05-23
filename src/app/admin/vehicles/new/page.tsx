@@ -14,21 +14,13 @@ export default function NewVehiclePage() {
         <h1 className="mt-2 text-2xl font-bold text-navy">Add Vehicle</h1>
       </div>
       <div className="rounded-lg border border-accent/30 bg-accent/5 p-4 text-sm text-navy">
-        <p className="font-semibold">After you save this vehicle, you can:</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-silver-dark">
-          <li>Add or reorder more photos</li>
-          <li>
-            Fill in the <strong>Consumer Information Notice (CIN)</strong> —
-            required for used vehicles under the NZ Fair Trading Act
-          </li>
-          <li>
-            Fill in the <strong>Basic Condition Guide (BCG)</strong> — grades
-            the vehicle&apos;s overall condition for buyers
-          </li>
-        </ul>
-        <p className="mt-2 text-xs text-silver-dark">
-          Both PDFs will appear as download buttons on the public vehicle page
-          once filled in.
+        <p className="font-semibold">Tip</p>
+        <p className="mt-1 text-silver-dark">
+          You can fill in the <strong>Consumer Information Notice</strong> and{" "}
+          <strong>Basic Condition Guide</strong> right in this form (expand the
+          collapsed sections below), or save the vehicle first and add them on
+          the edit page later. Once saved, both become download buttons on the
+          public listing.
         </p>
       </div>
       <div className="rounded-xl border border-silver bg-white p-6 shadow-sm">

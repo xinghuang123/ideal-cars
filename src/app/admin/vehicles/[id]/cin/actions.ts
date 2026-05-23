@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ConsumerInformationNotice } from "@/types/car";
 
@@ -18,7 +17,7 @@ export async function updateVehicleCin(
 
   revalidatePath(`/admin/vehicles/${id}/edit`);
   revalidatePath(`/buy/${id}`);
-  redirect(`/admin/vehicles/${id}/edit`);
+  return { ok: true as const };
 }
 
 export async function clearVehicleCin(id: string) {
