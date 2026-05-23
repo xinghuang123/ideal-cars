@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
@@ -19,6 +19,17 @@ import { createVehicle, updateVehicle } from "./actions";
 const driveTypes = ["FWD", "RWD", "AWD", "4WD"] as const;
 const statuses = ["available", "special", "sold"] as const;
 const BUCKET = "vehicle-images";
+const DRAFT_KEY = "ideal-cars-new-vehicle-draft";
+
+function loadDraft(): Record<string, string> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = window.localStorage.getItem(DRAFT_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function VehicleForm({
   initial,
@@ -31,12 +42,49 @@ export default function VehicleForm({
   const [pendingImages, setPendingImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const isEdit = Boolean(initial);
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [draft] = useState<Record<string, string> | null>(() =>
+    isEdit ? null : loadDraft(),
+  );
+  const [draftToast, setDraftToast] = useState<string | null>(null);
 
   useEffect(() => {
     const urls = pendingImages.map((f) => URL.createObjectURL(f));
     setPreviews(urls);
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [pendingImages]);
+
+  function handleSaveDraft() {
+    if (!formRef.current) return;
+    const formData = new FormData(formRef.current);
+    const obj: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      if (typeof value === "string" && value !== "") {
+        obj[key] = value;
+      }
+    });
+    try {
+      window.localStorage.setItem(DRAFT_KEY, JSON.stringify(obj));
+      setDraftToast("Draft saved.");
+      setTimeout(() => setDraftToast(null), 2500);
+    } catch {
+      setError("Could not save draft (browser storage unavailable).");
+    }
+  }
+
+  function handleDiscardDraft() {
+    if (
+      !window.confirm(
+        "Discard the saved draft? This will clear the form.",
+      )
+    )
+      return;
+    try {
+      window.localStorage.removeItem(DRAFT_KEY);
+    } catch {}
+    window.location.reload();
+  }
 
   function handleImagesPicked(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -88,6 +136,9 @@ export default function VehicleForm({
         );
         return;
       }
+      try {
+        window.localStorage.removeItem(DRAFT_KEY);
+      } catch {}
       if (pendingImages.length > 0) {
         try {
           await uploadPendingImages(vehicleId);
@@ -108,7 +159,25 @@ export default function VehicleForm({
   }
 
   return (
-    <form action={handleSubmit} className="space-y-8">
+    <form ref={formRef} action={handleSubmit} className="space-y-8">
+      {!isEdit && draft && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          Restored a saved draft. Edit any field and save when ready, or
+          <button
+            type="button"
+            onClick={handleDiscardDraft}
+            className="ml-1 font-semibold text-amber-900 underline hover:no-underline"
+          >
+            discard the draft
+          </button>
+          .
+        </div>
+      )}
+      {draftToast && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          {draftToast}
+        </div>
+      )}
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
@@ -123,20 +192,20 @@ export default function VehicleForm({
           <Input
             label="Stock Number *"
             name="stock_number"
-            defaultValue={initial?.stock_number}
+            defaultValue={initial?.stock_number ?? draft?.stock_number ?? ""}
             required
           />
           <Input
             label="VIN"
             name="vin"
-            defaultValue={initial?.vin ?? ""}
+            defaultValue={initial?.vin ?? draft?.vin ?? ""}
             placeholder="17 characters"
             maxLength={17}
           />
           <Select
             label="Status *"
             name="status"
-            defaultValue={initial?.status ?? "available"}
+            defaultValue={initial?.status ?? draft?.status ?? "available"}
             required
           >
             {statuses.map((s) => (
@@ -154,7 +223,7 @@ export default function VehicleForm({
           <Select
             label="Make *"
             name="make"
-            defaultValue={initial?.make ?? ""}
+            defaultValue={initial?.make ?? draft?.make ?? ""}
             required
           >
             <option value="">Select make</option>
@@ -167,7 +236,7 @@ export default function VehicleForm({
           <Input
             label="Model *"
             name="model"
-            defaultValue={initial?.model}
+            defaultValue={initial?.model ?? draft?.model ?? ""}
             required
           />
           <Input
@@ -176,7 +245,7 @@ export default function VehicleForm({
             type="number"
             min={1990}
             max={new Date().getFullYear() + 1}
-            defaultValue={initial?.year}
+            defaultValue={initial?.year ?? draft?.year ?? ""}
             required
           />
           <Input
@@ -185,7 +254,7 @@ export default function VehicleForm({
             type="number"
             min={0}
             step={100}
-            defaultValue={initial?.price}
+            defaultValue={initial?.price ?? draft?.price ?? ""}
             required
           />
           <Input
@@ -193,19 +262,19 @@ export default function VehicleForm({
             name="mileage"
             type="number"
             min={0}
-            defaultValue={initial?.mileage}
+            defaultValue={initial?.mileage ?? draft?.mileage ?? ""}
             required
           />
           <Input
             label="Colour *"
             name="colour"
-            defaultValue={initial?.colour}
+            defaultValue={initial?.colour ?? draft?.colour ?? ""}
             required
           />
           <Select
             label="Body Type *"
             name="body_type"
-            defaultValue={initial?.body_type ?? ""}
+            defaultValue={initial?.body_type ?? draft?.body_type ?? ""}
             required
           >
             <option value="">Select</option>
@@ -218,7 +287,7 @@ export default function VehicleForm({
           <Select
             label="Fuel Type *"
             name="fuel_type"
-            defaultValue={initial?.fuel_type ?? ""}
+            defaultValue={initial?.fuel_type ?? draft?.fuel_type ?? ""}
             required
           >
             <option value="">Select</option>
@@ -231,7 +300,7 @@ export default function VehicleForm({
           <Select
             label="Transmission *"
             name="transmission"
-            defaultValue={initial?.transmission ?? ""}
+            defaultValue={initial?.transmission ?? draft?.transmission ?? ""}
             required
           >
             <option value="">Select</option>
@@ -244,13 +313,13 @@ export default function VehicleForm({
           <Input
             label="Engine Size"
             name="engine_size"
-            defaultValue={initial?.engine_size ?? ""}
+            defaultValue={initial?.engine_size ?? draft?.engine_size ?? ""}
             placeholder="e.g. 2.0L"
           />
           <Select
             label="Drive Type"
             name="drive_type"
-            defaultValue={initial?.drive_type ?? ""}
+            defaultValue={initial?.drive_type ?? draft?.drive_type ?? ""}
           >
             <option value="">—</option>
             {driveTypes.map((d) => (
@@ -265,7 +334,7 @@ export default function VehicleForm({
             type="number"
             min={2}
             max={5}
-            defaultValue={initial?.doors ?? ""}
+            defaultValue={initial?.doors ?? draft?.doors ?? ""}
           />
           <Input
             label="Seats"
@@ -273,19 +342,19 @@ export default function VehicleForm({
             type="number"
             min={2}
             max={8}
-            defaultValue={initial?.seats ?? ""}
+            defaultValue={initial?.seats ?? draft?.seats ?? ""}
           />
           <Input
             label="WOF Expiry"
             name="wof_expiry"
             type="date"
-            defaultValue={initial?.wof_expiry ?? ""}
+            defaultValue={initial?.wof_expiry ?? draft?.wof_expiry ?? ""}
           />
           <Input
             label="Rego Expiry"
             name="rego_expiry"
             type="date"
-            defaultValue={initial?.rego_expiry ?? ""}
+            defaultValue={initial?.rego_expiry ?? draft?.rego_expiry ?? ""}
           />
         </div>
       </fieldset>
@@ -296,14 +365,16 @@ export default function VehicleForm({
           <Input
             label="Features (comma-separated)"
             name="features"
-            defaultValue={initial?.features?.join(", ") ?? ""}
+            defaultValue={
+              initial?.features?.join(", ") ?? draft?.features ?? ""
+            }
             placeholder="e.g. Bluetooth, Reversing Camera, Cruise Control"
           />
           <Textarea
             label="Description"
             name="description"
             rows={5}
-            defaultValue={initial?.description ?? ""}
+            defaultValue={initial?.description ?? draft?.description ?? ""}
           />
         </div>
       </fieldset>
@@ -313,17 +384,22 @@ export default function VehicleForm({
           <legend className="mb-4 text-lg font-bold text-navy">Photos</legend>
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
-              <label className="cursor-pointer rounded-lg border-2 border-dashed border-silver bg-gray-50 px-4 py-2 text-sm font-medium text-navy hover:border-accent hover:text-accent">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={pending}
+                className="cursor-pointer rounded-lg border-2 border-dashed border-silver bg-gray-50 px-4 py-2 text-sm font-medium text-navy hover:border-accent hover:text-accent disabled:opacity-50"
+              >
                 + Add Photos
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  className="sr-only"
-                  onChange={handleImagesPicked}
-                  disabled={pending}
-                />
-              </label>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                onChange={handleImagesPicked}
+              />
               <p className="text-xs text-silver-dark">
                 The first photo becomes the primary image. JPG, PNG, or WebP.
               </p>
@@ -366,7 +442,7 @@ export default function VehicleForm({
         </fieldset>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button type="submit" size="lg" disabled={pending}>
           {pending
             ? pendingImages.length > 0
@@ -376,6 +452,29 @@ export default function VehicleForm({
               ? "Save Changes"
               : "Create Vehicle"}
         </Button>
+        {!isEdit && (
+          <>
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={pending}
+            >
+              Save Draft
+            </Button>
+            {draft && (
+              <button
+                type="button"
+                onClick={handleDiscardDraft}
+                disabled={pending}
+                className="text-sm font-medium text-silver-dark underline hover:text-red-600 disabled:opacity-50"
+              >
+                Discard draft
+              </button>
+            )}
+          </>
+        )}
       </div>
     </form>
   );
