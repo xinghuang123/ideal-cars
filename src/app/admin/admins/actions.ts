@@ -59,18 +59,26 @@ export async function inviteAdmin(formData: FormData) {
       options: { redirectTo: `${siteUrl()}/admin/set-password` },
     });
 
-  const actionLink = linkData?.properties?.action_link;
-  if (linkError || !actionLink) {
+  const tokenHash = linkData?.properties?.hashed_token;
+  if (linkError || !tokenHash) {
     await admin.auth.admin.deleteUser(createData.user.id);
     return {
       error: `Failed to generate invite link: ${linkError?.message ?? "no link returned"}`,
     };
   }
 
+  // Route through our own /auth/confirm so verifyOtp happens server-side
+  // and the session cookie is set before the user lands on the form.
+  // (Supabase's default action_link uses PKCE, which fails for
+  // server-initiated flows because the code verifier isn't on the client.)
+  const confirmLink = `${siteUrl()}/auth/confirm?token_hash=${encodeURIComponent(
+    tokenHash,
+  )}&type=recovery&next=${encodeURIComponent("/admin/set-password")}`;
+
   const emailResult = await sendTransactionalEmail({
     to: email,
     subject: "You've been invited to Ideal Cars admin",
-    html: renderAdminInviteEmail(actionLink),
+    html: renderAdminInviteEmail(confirmLink),
   });
 
   if ("error" in emailResult) {
@@ -82,23 +90,35 @@ export async function inviteAdmin(formData: FormData) {
   return { ok: true, email };
 }
 
-async function sendRecoveryEmail(email: string) {
+async function sendRecoveryEmail(
+  email: string,
+  kind: "invite" | "reset",
+) {
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.generateLink({
     type: "recovery",
     email,
     options: { redirectTo: `${siteUrl()}/admin/set-password` },
   });
-  const actionLink = data?.properties?.action_link;
-  if (error || !actionLink) {
+  const tokenHash = data?.properties?.hashed_token;
+  if (error || !tokenHash) {
     return {
-      error: `Failed to generate reset link: ${error?.message ?? "no link returned"}`,
+      error: `Failed to generate link: ${error?.message ?? "no link returned"}`,
     };
   }
+  const confirmLink = `${siteUrl()}/auth/confirm?token_hash=${encodeURIComponent(
+    tokenHash,
+  )}&type=recovery&next=${encodeURIComponent("/admin/set-password")}`;
   const emailResult = await sendTransactionalEmail({
     to: email,
-    subject: "Reset your Ideal Cars admin password",
-    html: renderAdminPasswordResetEmail(actionLink),
+    subject:
+      kind === "invite"
+        ? "You've been invited to Ideal Cars admin"
+        : "Reset your Ideal Cars admin password",
+    html:
+      kind === "invite"
+        ? renderAdminInviteEmail(confirmLink)
+        : renderAdminPasswordResetEmail(confirmLink),
   });
   if ("error" in emailResult) {
     return { error: `Email failed: ${emailResult.error}` };
@@ -109,12 +129,12 @@ async function sendRecoveryEmail(email: string) {
 
 export async function resendInvite(userId: string, email: string) {
   await requireAdmin();
-  return sendRecoveryEmail(email);
+  return sendRecoveryEmail(email, "invite");
 }
 
 export async function sendPasswordRecovery(email: string) {
   await requireAdmin();
-  return sendRecoveryEmail(email);
+  return sendRecoveryEmail(email, "reset");
 }
 
 function isUserGoneError(message: string | undefined) {
