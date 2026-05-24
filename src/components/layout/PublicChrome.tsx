@@ -12,13 +12,19 @@ export default async function PublicChrome({
 }) {
   const customer = await getCurrentCustomer();
 
+  // On the public-facing site, admin sessions are presented as signed-out
+  // so the customer portal is fully separated from the admin portal in the
+  // UI. The session itself stays valid — visiting /admin still works without
+  // re-logging-in.
+  const navbarUser = customer && !customer.isAdmin ? customer : null;
+
   return (
     <PublicChromeShell
       navbar={
         <Navbar
-          userEmail={customer?.email ?? null}
-          userName={customer?.profile?.full_name ?? null}
-          isAdmin={customer?.isAdmin ?? false}
+          userEmail={navbarUser?.email ?? null}
+          userName={navbarUser?.profile?.full_name ?? null}
+          isAdmin={false}
         />
       }
       footer={<Footer />}
