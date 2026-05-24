@@ -6,6 +6,23 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  // Hero slide gradient classes are stored in the database (so admins can
+  // swap them without a deploy). Tailwind can't see DB-only class strings,
+  // so we explicitly safelist the presets used by hero_slides.
+  safelist: [
+    "bg-gradient-to-br",
+    "bg-gradient-to-tr",
+    "bg-gradient-to-bl",
+    "from-navy",
+    "from-navy-dark",
+    "from-navy-light",
+    "via-navy",
+    "via-navy-dark",
+    "via-navy-light",
+    "to-navy",
+    "to-navy-dark",
+    "to-navy-light",
+  ],
   theme: {
     extend: {
       colors: {

@@ -16,6 +16,21 @@ import {
 
 const BUCKET = "site-images";
 
+// Common destinations admins can pick from for the slide button.
+// Keep these in sync with the public site nav.
+const LINK_PRESETS: { label: string; href: string }[] = [
+  { label: "Home", href: "/" },
+  { label: "Browse Cars", href: "/buy" },
+  { label: "Featured Cars", href: "/buy?status=special" },
+  { label: "Sell my Car", href: "/sell" },
+  { label: "Finance", href: "/finance" },
+  { label: "Service & Repairs", href: "/service" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+];
+const CUSTOM_LINK_VALUE = "__custom__";
+const NO_BUTTON_VALUE = "__none__";
+
 export default function HeroSlidesManager({
   initialSlides,
 }: {
@@ -146,6 +161,15 @@ function SlideRow({
   const [subheading, setSubheading] = useState(slide.subheading);
   const [buttonText, setButtonText] = useState(slide.button_text);
   const [buttonHref, setButtonHref] = useState(slide.button_href);
+  // Dropdown state: "" = no button, "__custom__" = use buttonHref freely,
+  // otherwise the value matches a LINK_PRESETS href.
+  const initialLinkMode =
+    slide.button_href === ""
+      ? NO_BUTTON_VALUE
+      : LINK_PRESETS.some((p) => p.href === slide.button_href)
+        ? slide.button_href
+        : CUSTOM_LINK_VALUE;
+  const [linkMode, setLinkMode] = useState<string>(initialLinkMode);
   const [isActive, setIsActive] = useState(slide.is_active);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -234,8 +258,12 @@ function SlideRow({
                 sizes="(max-width: 768px) 100vw, 220px"
               />
             ) : (
-              <div className="flex h-full items-center justify-center px-2 text-center text-xs text-silver-dark">
-                No image — gradient will show
+              <div
+                className={`flex h-full items-center justify-center px-2 text-center text-xs font-medium text-white ${
+                  slide.gradient_class ?? "bg-navy"
+                }`}
+              >
+                No image — gradient fallback
               </div>
             )}
           </div>
@@ -324,12 +352,41 @@ function SlideRow({
               onChange={(e) => setButtonText(e.target.value)}
               placeholder="e.g. Browse Cars"
             />
-            <Input
-              label="Button link"
-              value={buttonHref}
-              onChange={(e) => setButtonHref(e.target.value)}
-              placeholder="e.g. /buy"
-            />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-navy">
+                Button takes user to
+              </label>
+              <select
+                value={linkMode}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setLinkMode(v);
+                  if (v === NO_BUTTON_VALUE) {
+                    setButtonHref("");
+                  } else if (v !== CUSTOM_LINK_VALUE) {
+                    setButtonHref(v);
+                  }
+                }}
+                className="w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+              >
+                <option value={NO_BUTTON_VALUE}>No button on this slide</option>
+                {LINK_PRESETS.map((p) => (
+                  <option key={p.href} value={p.href}>
+                    {p.label} ({p.href})
+                  </option>
+                ))}
+                <option value={CUSTOM_LINK_VALUE}>Custom URL…</option>
+              </select>
+              {linkMode === CUSTOM_LINK_VALUE && (
+                <input
+                  type="text"
+                  value={buttonHref}
+                  onChange={(e) => setButtonHref(e.target.value)}
+                  placeholder="e.g. /buy?make=Toyota or https://..."
+                  className="mt-2 w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-sm text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+                />
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-3">
