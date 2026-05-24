@@ -7,6 +7,11 @@ const nextConfig = {
         hostname: "qbesmdxntzrbzlwfbqmy.supabase.co",
         pathname: "/storage/v1/object/public/vehicle-images/**",
       },
+      {
+        protocol: "https",
+        hostname: "qbesmdxntzrbzlwfbqmy.supabase.co",
+        pathname: "/storage/v1/object/public/site-images/**",
+      },
     ],
   },
   // Keep Node.js-only packages out of the webpack client bundle.

@@ -1,10 +1,15 @@
 import { getSiteContent } from "@/lib/site-content";
+import { getAllHeroSlides } from "@/lib/hero-slides";
 import SiteContentForm from "./SiteContentForm";
+import HeroSlidesManager from "./HeroSlidesManager";
 
 export const dynamic = "force-dynamic";
 
 export default async function SiteContentPage() {
-  const content = await getSiteContent();
+  const [content, slides] = await Promise.all([
+    getSiteContent(),
+    getAllHeroSlides(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -15,6 +20,7 @@ export default async function SiteContentPage() {
           on the next page load.
         </p>
       </div>
+      <HeroSlidesManager initialSlides={slides} />
       <SiteContentForm initial={content} />
     </div>
   );

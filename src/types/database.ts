@@ -106,3 +106,17 @@ export interface ServiceRow {
   display_order: number;
   is_active: boolean;
 }
+
+export interface HeroSlideRow {
+  id: string;
+  image_url: string | null;
+  heading: string;
+  subheading: string;
+  button_text: string;
+  button_href: string;
+  gradient_class: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
