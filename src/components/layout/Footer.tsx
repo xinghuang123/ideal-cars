@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import NewsletterForm from "@/components/layout/NewsletterForm";
 import { getSiteContent } from "@/lib/site-content";
+import { toTelHref } from "@/lib/utils";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -73,7 +74,7 @@ export default async function Footer() {
                   />
                 </svg>
                 <a
-                  href={content.phone_href}
+                  href={toTelHref(content.phone)}
                   className="transition-colors hover:text-accent"
                 >
                   {content.phone}

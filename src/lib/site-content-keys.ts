@@ -3,7 +3,6 @@
 
 export interface SiteContent {
   phone: string;
-  phone_href: string;
   email: string;
   address: string;
   hours_weekday: string;
@@ -18,7 +17,6 @@ export interface SiteContent {
 
 export const DEFAULTS: SiteContent = {
   phone: "020 4190 7335",
-  phone_href: "tel:02041907335",
   email: "idealcarsnzltd@gmail.com",
   address: "64 Broad Street, Woolston, Christchurch 8062",
   hours_weekday: "Monday – Friday: 9:00 AM – 6:00 PM",
@@ -34,8 +32,7 @@ export const DEFAULTS: SiteContent = {
 export const SITE_CONTENT_KEYS = Object.keys(DEFAULTS) as (keyof SiteContent)[];
 
 export const FIELD_LABELS: Record<keyof SiteContent, { label: string; type: "text" | "textarea" }> = {
-  phone: { label: "Phone (display)", type: "text" },
-  phone_href: { label: "Phone (tel: link)", type: "text" },
+  phone: { label: "Phone number", type: "text" },
   email: { label: "Email", type: "text" },
   address: { label: "Address", type: "text" },
   hours_weekday: { label: "Hours — Mon–Fri", type: "text" },

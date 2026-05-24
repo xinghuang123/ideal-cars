@@ -40,7 +40,7 @@ export default function SiteContentForm({ initial }: { initial: SiteContent }) {
   const groups: Array<{ title: string; keys: (keyof SiteContent)[] }> = [
     {
       title: "Contact details",
-      keys: ["phone", "phone_href", "email", "address"],
+      keys: ["phone", "email", "address"],
     },
     {
       title: "Opening hours",

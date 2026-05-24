@@ -3,6 +3,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import ContactForm from "@/components/forms/ContactForm";
 import { getSiteContent } from "@/lib/site-content";
+import { toTelHref } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ export default async function ContactPage() {
                 </div>
                 <h3 className="font-bold text-navy">Phone</h3>
                 <a
-                  href={content.phone_href}
+                  href={toTelHref(content.phone)}
                   className="mt-1 block text-silver-dark hover:text-accent transition-colors"
                 >
                   {content.phone}
