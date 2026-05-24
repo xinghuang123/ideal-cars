@@ -1,4 +1,8 @@
-import { pipeline, env, type FeatureExtractionPipeline } from "@xenova/transformers";
+import {
+  pipeline,
+  env,
+  type FeatureExtractionPipeline,
+} from "@xenova/transformers";
 
 // Use cached models on disk between invocations. On Vercel this is /tmp;
 // the model downloads once per cold start (~22 MB).
@@ -32,7 +36,7 @@ export async function embed(text: string): Promise<number[]> {
 
 /**
  * Builds the canonical text representation of a vehicle that gets embedded.
- * Keep this stable — changes invalidate all existing embeddings.
+ * This function is used to convert vehicle data to pgvector
  */
 export function vehicleEmbeddingText(v: {
   year: number;

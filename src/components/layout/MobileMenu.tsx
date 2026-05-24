@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { navLinks } from "./Navbar";
 import { signOut } from "@/app/auth/actions";
@@ -38,8 +38,12 @@ export default function MobileMenu({
   }, [isOpen]);
 
   // Close menu when route changes
+  const prevPathnameRef = useRef(pathname);
   useEffect(() => {
-    onClose();
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      onClose();
+    }
   }, [pathname, onClose]);
 
   return (
