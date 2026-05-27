@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { getSiteContent } from "@/lib/site-content";
+import { getActiveAboutValues } from "@/lib/about-values";
+import { getActiveAboutTeam } from "@/lib/about-team";
 
 export const dynamic = "force-dynamic";
 
@@ -12,29 +15,6 @@ export const metadata: Metadata = {
     "Learn about Ideal Cars - a trusted, family-owned New Zealand car dealership with over 10 years of experience. Quality vehicles and honest service.",
 };
 
-const values = [
-  {
-    title: "Transparency",
-    description:
-      "No hidden fees, no surprises. We believe in honest pricing and clear communication at every step of the process.",
-  },
-  {
-    title: "Quality",
-    description:
-      "Every vehicle we sell is thoroughly inspected and comes with a comprehensive vehicle history. We stand behind what we sell.",
-  },
-  {
-    title: "Customer First",
-    description:
-      "Your satisfaction is our priority. We listen to your needs and work hard to find the perfect vehicle and deal for you.",
-  },
-  {
-    title: "Community",
-    description:
-      "We are proud to be part of the local community. We support local events and charities, and treat every customer like family.",
-  },
-];
-
 const stats = [
   { value: "500+", label: "Cars Sold" },
   { value: "10+", label: "Years Experience" },
@@ -42,14 +22,24 @@ const stats = [
   { value: "100%", label: "NZ Owned" },
 ];
 
-const team = [
-  { name: "James Mitchell", role: "Founder & Director" },
-  { name: "Sarah Chen", role: "Sales Manager" },
-  { name: "David Thompson", role: "Service Manager" },
-];
+function splitParagraphs(text: string | null | undefined): string[] {
+  if (!text) return [];
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
 
 export default async function AboutPage() {
-  const content = await getSiteContent();
+  const [content, values, team] = await Promise.all([
+    getSiteContent(),
+    getActiveAboutValues(),
+    getActiveAboutTeam(),
+  ]);
+  const storyParagraphs = [
+    ...splitParagraphs(content.about_intro),
+    ...splitParagraphs(content.our_story_body),
+  ];
   return (
     <>
       <PageHeader
@@ -62,16 +52,9 @@ export default async function AboutPage() {
         <Container>
           <SectionHeading title="Our Story" />
           <div className="mx-auto max-w-3xl space-y-4 text-silver-dark">
-            <p>{content.about_intro}</p>
-            <p>
-              What started as a small yard with a handful of vehicles has grown
-              into a full-service dealership offering quality used cars, vehicle
-              finance, servicing, and repairs. Despite our growth, we have never
-              lost sight of what matters most - putting our customers first and
-              delivering genuine value. Whether you are buying your first car or
-              upgrading your family vehicle, our friendly team is here to help
-              every step of the way.
-            </p>
+            {storyParagraphs.map((p, idx) => (
+              <p key={idx}>{p}</p>
+            ))}
           </div>
         </Container>
       </section>
@@ -87,7 +70,7 @@ export default async function AboutPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((value) => (
               <div
-                key={value.title}
+                key={value.id}
                 className="rounded-xl border border-silver bg-white p-6 text-center shadow-sm"
               >
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-xl font-bold text-accent">
@@ -130,22 +113,39 @@ export default async function AboutPage() {
           />
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
-            {team.map((member) => (
+            {team.map((member) => {
+              const initials = member.name
+                .split(" ")
+                .filter(Boolean)
+                .map((n) => n[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase();
+              return (
               <div
-                key={member.name}
+                key={member.id}
                 className="rounded-xl border border-silver bg-white p-6 text-center shadow-sm"
               >
-                {/* Avatar placeholder */}
-                <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 text-3xl font-bold text-silver-dark">
-                  {member.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                <div className="relative mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full bg-gray-200">
+                  {member.photo_url ? (
+                    <Image
+                      src={member.photo_url}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                      sizes="96px"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-silver-dark">
+                      {initials || "—"}
+                    </div>
+                  )}
                 </div>
                 <h3 className="text-lg font-bold text-navy">{member.name}</h3>
                 <p className="text-sm text-silver-dark">{member.role}</p>
               </div>
-            ))}
+              );
+            })}
           </div>
         </Container>
       </section>

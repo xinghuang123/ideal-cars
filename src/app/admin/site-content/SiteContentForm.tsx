@@ -48,7 +48,11 @@ export default function SiteContentForm({ initial }: { initial: SiteContent }) {
     },
     {
       title: "Marketing copy",
-      keys: ["tagline", "hero_title", "hero_subtitle", "about_intro"],
+      keys: ["tagline", "hero_title", "hero_subtitle"],
+    },
+    {
+      title: "About page — Our Story",
+      keys: ["about_intro", "our_story_body"],
     },
   ];
 

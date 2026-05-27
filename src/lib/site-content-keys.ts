@@ -12,6 +12,7 @@ export interface SiteContent {
   hero_title: string;
   hero_subtitle: string;
   about_intro: string;
+  our_story_body: string;
   [key: string]: string;
 }
 
@@ -27,6 +28,8 @@ export const DEFAULTS: SiteContent = {
   hero_subtitle: "Browse our quality selection of second-hand vehicles",
   about_intro:
     "Ideal Cars is a family-owned used car dealership in Christchurch, New Zealand. We've been helping Kiwis find quality second-hand vehicles at fair prices since 2018.",
+  our_story_body:
+    "What started as a small yard with a handful of vehicles has grown into a full-service dealership offering quality used cars, vehicle finance, servicing, and repairs. Despite our growth, we have never lost sight of what matters most - putting our customers first and delivering genuine value. Whether you are buying your first car or upgrading your family vehicle, our friendly team is here to help every step of the way.",
 };
 
 export const SITE_CONTENT_KEYS = Object.keys(DEFAULTS) as (keyof SiteContent)[];
@@ -41,5 +44,6 @@ export const FIELD_LABELS: Record<keyof SiteContent, { label: string; type: "tex
   tagline: { label: "Footer tagline", type: "text" },
   hero_title: { label: "Homepage hero title", type: "text" },
   hero_subtitle: { label: "Homepage hero subtitle", type: "textarea" },
-  about_intro: { label: "About page intro", type: "textarea" },
+  about_intro: { label: "About page intro (first paragraph of Our Story)", type: "textarea" },
+  our_story_body: { label: "Our Story body (further paragraphs, blank line between)", type: "textarea" },
 };

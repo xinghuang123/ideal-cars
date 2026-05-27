@@ -120,3 +120,24 @@ export interface HeroSlideRow {
   created_at: string;
   updated_at: string;
 }
+
+export interface AboutValueRow {
+  id: string;
+  title: string;
+  description: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AboutTeamMemberRow {
+  id: string;
+  name: string;
+  role: string;
+  photo_url: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
