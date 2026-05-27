@@ -133,6 +133,19 @@ export default function VehicleImageManager({
     });
   }
 
+  // Defensive: if legacy data has multiple rows flagged primary, pick a single
+  // effective primary (lowest display_order, then earliest created_at) and
+  // treat the rest as non-primary in the UI. The "Set as primary" handler
+  // re-normalises the DB next time the admin clicks it.
+  const effectivePrimaryId = [...images]
+    .filter((i) => i.is_primary)
+    .sort((a, b) => {
+      if (a.display_order !== b.display_order) {
+        return a.display_order - b.display_order;
+      }
+      return (a.created_at ?? "").localeCompare(b.created_at ?? "");
+    })[0]?.id;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -164,7 +177,9 @@ export default function VehicleImageManager({
         </p>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {images.map((img) => (
+          {images.map((img) => {
+            const isPrimary = img.id === effectivePrimaryId;
+            return (
             <li
               key={img.id}
               className="relative overflow-hidden rounded-lg border border-silver bg-white"
@@ -177,14 +192,14 @@ export default function VehicleImageManager({
                   className="object-cover"
                   sizes="(max-width: 640px) 50vw, 25vw"
                 />
-                {img.is_primary && (
+                {isPrimary && (
                   <span className="absolute left-2 top-2 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-white">
                     Primary
                   </span>
                 )}
               </div>
               <div className="flex items-center justify-between gap-2 p-2 text-xs">
-                {img.is_primary ? (
+                {isPrimary ? (
                   <span className="text-silver-dark">Primary image</span>
                 ) : (
                   <button
@@ -204,7 +219,8 @@ export default function VehicleImageManager({
                 </button>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>
