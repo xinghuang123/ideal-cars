@@ -19,9 +19,12 @@ import type {
   ConsumerInformationNotice,
 } from "@/types/car";
 import CinFields, { defaultCinFromVehicle } from "@/components/admin/CinFields";
-import BcgFields, { defaultBcg } from "@/components/admin/BcgFields";
-import { updateVehicleCin } from "./[id]/cin/actions";
-import { updateVehicleBcg } from "./[id]/bcg/actions";
+import BcgFields, {
+  defaultBcg,
+  mergeBcgWithStandard,
+} from "@/components/admin/BcgFields";
+import { clearVehicleCin, updateVehicleCin } from "./[id]/cin/actions";
+import { clearVehicleBcg, updateVehicleBcg } from "./[id]/bcg/actions";
 import { createVehicle, updateVehicle } from "./actions";
 
 const driveTypes = ["FWD", "RWD", "AWD", "4WD"] as const;
@@ -57,33 +60,96 @@ export default function VehicleForm({
   );
   const [draftToast, setDraftToast] = useState<string | null>(null);
 
-  // CIN / BCG collapsible state — only used in the new-vehicle flow.
+  // CIN / BCG collapsible state — used in both new-vehicle and edit flows.
   const [cinOpen, setCinOpen] = useState(false);
   const [bcgOpen, setBcgOpen] = useState(false);
-  const [cin, setCin] = useState<ConsumerInformationNotice | null>(null);
-  const [bcg, setBcg] = useState<BasicConditionGuide | null>(null);
+  const [cin, setCin] = useState<ConsumerInformationNotice | null>(
+    initial?.cin ?? null,
+  );
+  const [bcg, setBcg] = useState<BasicConditionGuide | null>(
+    initial?.bcg ? mergeBcgWithStandard(initial.bcg) : null,
+  );
+  const [cinDirty, setCinDirty] = useState(false);
+  const [bcgDirty, setBcgDirty] = useState(false);
 
+  function cinFromCurrentForm(
+    base: ConsumerInformationNotice | null,
+  ): ConsumerInformationNotice {
+    const form = formRef.current
+      ? new FormData(formRef.current)
+      : new FormData();
+    const seed = defaultCinFromVehicle({
+      price: Number(form.get("price")) || 0,
+      mileage: Number(form.get("mileage")) || 0,
+      vin: String(form.get("vin") ?? ""),
+      wof_expiry: String(form.get("wof_expiry") ?? ""),
+      rego_expiry: String(form.get("rego_expiry") ?? ""),
+      fuel_type: String(form.get("fuel_type") ?? "Petrol"),
+    });
+    if (!base) return seed;
+    return {
+      ...base,
+      cashPrice: seed.cashPrice,
+      odometer: seed.odometer,
+      vin: seed.vin,
+      wofOrCofExpiry: seed.wofOrCofExpiry,
+      vehicleLicenceExpiry: seed.vehicleLicenceExpiry,
+      operatingFuelType: seed.operatingFuelType,
+      rucApplies: seed.rucApplies,
+    };
+  }
+
+  function handleCinChange(next: ConsumerInformationNotice) {
+    setCin(next);
+    setCinDirty(true);
+  }
+  function handleBcgChange(next: BasicConditionGuide) {
+    setBcg(next);
+    setBcgDirty(true);
+  }
+  function pullCinFromVehicleDetails() {
+    setCin(cinFromCurrentForm(cin));
+    setCinDirty(true);
+  }
   function openCin() {
     if (cin === null) {
-      const form = formRef.current
-        ? new FormData(formRef.current)
-        : new FormData();
-      setCin(
-        defaultCinFromVehicle({
-          price: Number(form.get("price")) || 0,
-          mileage: Number(form.get("mileage")) || 0,
-          vin: String(form.get("vin") ?? ""),
-          wof_expiry: String(form.get("wof_expiry") ?? ""),
-          rego_expiry: String(form.get("rego_expiry") ?? ""),
-          fuel_type: String(form.get("fuel_type") ?? "Petrol"),
-        }),
-      );
+      setCin(cinFromCurrentForm(null));
+      if (isEdit) setCinDirty(true);
     }
     setCinOpen(true);
   }
   function openBcg() {
-    if (bcg === null) setBcg(defaultBcg());
+    if (bcg === null) {
+      setBcg(defaultBcg());
+      if (isEdit) setBcgDirty(true);
+    }
     setBcgOpen(true);
+  }
+  function clearCinSection() {
+    if (
+      !window.confirm(
+        isEdit
+          ? "Clear the saved CIN for this vehicle? It will be removed on save."
+          : "Clear the CIN section? It will not be saved with this vehicle.",
+      )
+    )
+      return;
+    setCin(null);
+    setCinDirty(true);
+    setCinOpen(false);
+  }
+  function clearBcgSection() {
+    if (
+      !window.confirm(
+        isEdit
+          ? "Clear the saved BCG for this vehicle? It will be removed on save."
+          : "Clear the BCG section? It will not be saved with this vehicle.",
+      )
+    )
+      return;
+    setBcg(null);
+    setBcgDirty(true);
+    setBcgOpen(false);
   }
 
   useEffect(() => {
@@ -162,7 +228,53 @@ export default function VehicleForm({
     startTransition(async () => {
       if (isEdit) {
         const result = await updateVehicle(initial!.id, formData);
-        if (result?.error) setError(result.error);
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+        if (cinDirty) {
+          if (cin) {
+            const res = await updateVehicleCin(initial!.id, cin);
+            if ("error" in res && res.error) {
+              setError(`Vehicle saved, but CIN failed: ${res.error}`);
+              return;
+            }
+          } else {
+            try {
+              await clearVehicleCin(initial!.id);
+            } catch (err) {
+              setError(
+                `Vehicle saved, but clearing CIN failed: ${
+                  err instanceof Error ? err.message : "unknown error"
+                }`,
+              );
+              return;
+            }
+          }
+          setCinDirty(false);
+        }
+        if (bcgDirty) {
+          if (bcg) {
+            const res = await updateVehicleBcg(initial!.id, bcg);
+            if ("error" in res && res.error) {
+              setError(`Vehicle saved, but BCG failed: ${res.error}`);
+              return;
+            }
+          } else {
+            try {
+              await clearVehicleBcg(initial!.id);
+            } catch (err) {
+              setError(
+                `Vehicle saved, but clearing BCG failed: ${
+                  err instanceof Error ? err.message : "unknown error"
+                }`,
+              );
+              return;
+            }
+          }
+          setBcgDirty(false);
+        }
+        router.refresh();
         return;
       }
       const result = await createVehicle(formData);
@@ -503,105 +615,142 @@ export default function VehicleForm({
         </fieldset>
       )}
 
-      {!isEdit && (
-        <>
-          <details
-            className="overflow-hidden rounded-xl border border-silver bg-white"
-            open={cinOpen}
-            onToggle={(e) => {
-              const open = (e.currentTarget as HTMLDetailsElement).open;
-              if (open) openCin();
-              else setCinOpen(false);
-            }}
-          >
-            <summary className="flex cursor-pointer items-center justify-between gap-3 bg-gray-50 px-5 py-3 text-base font-bold text-navy hover:bg-gray-100">
-              <span>
-                Consumer Information Notice{" "}
-                <span className="text-xs font-normal text-silver-dark">
-                  (optional &mdash; can also be filled in after saving)
-                </span>
-                {cin && (
-                  <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
-                    Will be saved
-                  </span>
-                )}
+      <details
+        className="overflow-hidden rounded-xl border border-silver bg-white"
+        open={cinOpen}
+        onToggle={(e) => {
+          const open = (e.currentTarget as HTMLDetailsElement).open;
+          if (open) openCin();
+          else setCinOpen(false);
+        }}
+      >
+        <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-3 bg-gray-50 px-5 py-3 text-base font-bold text-navy hover:bg-gray-100">
+          <span className="flex flex-wrap items-center gap-2">
+            <span>Consumer Information Notice</span>
+            <span className="text-xs font-normal text-silver-dark">
+              (NZ Fair Trading Act — required for sale)
+            </span>
+            {!cin && (
+              <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-silver-dark">
+                Not set
               </span>
-              <span className="text-silver-dark">▾</span>
-            </summary>
-            <div className="border-t border-silver p-5">
-              {cin && (
-                <>
-                  <CinFields value={cin} onChange={setCin} />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Clear the CIN section? It will not be saved with this vehicle.",
-                        )
-                      ) {
-                        setCin(null);
-                        setCinOpen(false);
-                      }
-                    }}
-                    className="mt-4 text-sm font-medium text-silver-dark underline hover:text-red-600"
-                  >
-                    Clear CIN section
-                  </button>
-                </>
-              )}
-            </div>
-          </details>
+            )}
+            {cin && cinDirty && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                {initial?.cin ? "Unsaved changes" : "Will be saved"}
+              </span>
+            )}
+            {cin && !cinDirty && (
+              <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
+                {isEdit ? "Saved ✓" : "Will be saved"}
+              </span>
+            )}
+          </span>
+          <span className="flex items-center gap-3">
+            {isEdit && initial?.cin && (
+              <a
+                href={`/api/vehicles/${initial.id}/cin.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs font-semibold text-accent underline hover:no-underline"
+              >
+                Preview PDF
+              </a>
+            )}
+            <span className="text-silver-dark">▾</span>
+          </span>
+        </summary>
+        <div className="border-t border-silver p-5">
+          {cin && (
+            <>
+              <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-silver bg-gray-50 p-3">
+                <p className="text-xs text-silver-dark">
+                  Vehicle-derived fields (price, mileage, VIN, WoF, rego, fuel)
+                  can be auto-filled from the details you typed above.
+                </p>
+                <button
+                  type="button"
+                  onClick={pullCinFromVehicleDetails}
+                  className="rounded-md border border-accent px-3 py-1 text-xs font-semibold text-accent hover:bg-accent hover:text-white"
+                >
+                  ↻ Pull from vehicle details
+                </button>
+              </div>
+              <CinFields value={cin} onChange={handleCinChange} />
+              <button
+                type="button"
+                onClick={clearCinSection}
+                className="mt-4 text-sm font-medium text-silver-dark underline hover:text-red-600"
+              >
+                Clear CIN section
+              </button>
+            </>
+          )}
+        </div>
+      </details>
 
-          <details
-            className="overflow-hidden rounded-xl border border-silver bg-white"
-            open={bcgOpen}
-            onToggle={(e) => {
-              const open = (e.currentTarget as HTMLDetailsElement).open;
-              if (open) openBcg();
-              else setBcgOpen(false);
-            }}
-          >
-            <summary className="flex cursor-pointer items-center justify-between gap-3 bg-gray-50 px-5 py-3 text-base font-bold text-navy hover:bg-gray-100">
-              <span>
-                Basic Condition Guide{" "}
-                <span className="text-xs font-normal text-silver-dark">
-                  (optional &mdash; can also be filled in after saving)
-                </span>
-                {bcg && (
-                  <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
-                    Will be saved
-                  </span>
-                )}
+      <details
+        className="overflow-hidden rounded-xl border border-silver bg-white"
+        open={bcgOpen}
+        onToggle={(e) => {
+          const open = (e.currentTarget as HTMLDetailsElement).open;
+          if (open) openBcg();
+          else setBcgOpen(false);
+        }}
+      >
+        <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-3 bg-gray-50 px-5 py-3 text-base font-bold text-navy hover:bg-gray-100">
+          <span className="flex flex-wrap items-center gap-2">
+            <span>Basic Condition Guide</span>
+            <span className="text-xs font-normal text-silver-dark">
+              (inspection checklist)
+            </span>
+            {!bcg && (
+              <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-silver-dark">
+                Not set
               </span>
-              <span className="text-silver-dark">▾</span>
-            </summary>
-            <div className="border-t border-silver p-5">
-              {bcg && (
-                <>
-                  <BcgFields value={bcg} onChange={setBcg} />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Clear the BCG section? It will not be saved with this vehicle.",
-                        )
-                      ) {
-                        setBcg(null);
-                        setBcgOpen(false);
-                      }
-                    }}
-                    className="mt-4 text-sm font-medium text-silver-dark underline hover:text-red-600"
-                  >
-                    Clear BCG section
-                  </button>
-                </>
-              )}
-            </div>
-          </details>
-        </>
-      )}
+            )}
+            {bcg && bcgDirty && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                {initial?.bcg ? "Unsaved changes" : "Will be saved"}
+              </span>
+            )}
+            {bcg && !bcgDirty && (
+              <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
+                {isEdit ? "Saved ✓" : "Will be saved"}
+              </span>
+            )}
+          </span>
+          <span className="flex items-center gap-3">
+            {isEdit && initial?.bcg && (
+              <a
+                href={`/api/vehicles/${initial.id}/bcg.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs font-semibold text-accent underline hover:no-underline"
+              >
+                Preview PDF
+              </a>
+            )}
+            <span className="text-silver-dark">▾</span>
+          </span>
+        </summary>
+        <div className="border-t border-silver p-5">
+          {bcg && (
+            <>
+              <BcgFields value={bcg} onChange={handleBcgChange} />
+              <button
+                type="button"
+                onClick={clearBcgSection}
+                className="mt-4 text-sm font-medium text-silver-dark underline hover:text-red-600"
+              >
+                Clear BCG section
+              </button>
+            </>
+          )}
+        </div>
+      </details>
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" size="lg" disabled={pending}>
