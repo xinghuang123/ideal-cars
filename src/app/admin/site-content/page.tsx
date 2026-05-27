@@ -17,14 +17,11 @@ import ServicesManager from "./ServicesManager";
 
 export const dynamic = "force-dynamic";
 
-const GLOBAL_GROUPS: SiteContentGroup[] = [
-  { title: "Contact details", keys: ["phone", "email", "address"] },
-  { title: "Opening hours", keys: ["hours_weekday", "hours_saturday", "hours_sunday"] },
-  { title: "Marketing copy", keys: ["tagline", "hero_title", "hero_subtitle"] },
-];
-
-const ABOUT_GROUPS: SiteContentGroup[] = [
-  { title: "About page — Our Story", keys: ["about_intro", "our_story_body"] },
+const HOMEPAGE_GROUPS: SiteContentGroup[] = [
+  {
+    title: "Homepage hero copy (overrides first slide)",
+    keys: ["hero_title", "hero_subtitle"],
+  },
 ];
 
 const FINANCE_GROUPS: SiteContentGroup[] = [
@@ -58,6 +55,19 @@ const SERVICE_GROUPS: SiteContentGroup[] = [
   },
 ];
 
+const ABOUT_GROUPS: SiteContentGroup[] = [
+  { title: "About page — Our Story", keys: ["about_intro", "our_story_body"] },
+];
+
+const CONTACT_GROUPS: SiteContentGroup[] = [
+  { title: "Contact details", keys: ["phone", "email", "address"] },
+  {
+    title: "Opening hours",
+    keys: ["hours_weekday", "hours_saturday", "hours_sunday"],
+  },
+  { title: "Footer tagline", keys: ["tagline"] },
+];
+
 export default async function SiteContentPage() {
   const [content, slides, values, team, benefits, faqs, services] =
     await Promise.all([
@@ -75,44 +85,46 @@ export default async function SiteContentPage() {
       <div>
         <h1 className="text-2xl font-bold text-navy">Site Content</h1>
         <p className="mt-1 text-sm text-silver-dark">
-          Edit copy that appears across the website. Changes go live immediately
-          on the next page load.
+          Edit copy that appears across the website. Sections below follow the
+          order of the public navigation. Changes go live immediately on the
+          next page load.
         </p>
       </div>
 
-      {/* Homepage */}
+      {/* Home */}
       <section className="space-y-6">
-        <h2 className="text-lg font-bold text-navy">Homepage</h2>
+        <h2 className="text-lg font-bold text-navy">Home</h2>
         <HeroSlidesManager initialSlides={slides} />
+        <SiteContentForm initial={content} groups={HOMEPAGE_GROUPS} />
       </section>
 
-      {/* Global / contact */}
+      {/* Finance */}
       <section className="space-y-6">
-        <h2 className="text-lg font-bold text-navy">Contact &amp; global copy</h2>
-        <SiteContentForm initial={content} groups={GLOBAL_GROUPS} />
-      </section>
-
-      {/* About page */}
-      <section className="space-y-6">
-        <h2 className="text-lg font-bold text-navy">About page</h2>
-        <SiteContentForm initial={content} groups={ABOUT_GROUPS} />
-        <AboutValuesManager initialValues={values} />
-        <AboutTeamManager initialMembers={team} />
-      </section>
-
-      {/* Finance page */}
-      <section className="space-y-6">
-        <h2 className="text-lg font-bold text-navy">Finance page</h2>
+        <h2 className="text-lg font-bold text-navy">Finance</h2>
         <SiteContentForm initial={content} groups={FINANCE_GROUPS} />
         <FinanceBenefitsManager initialBenefits={benefits} />
         <FinanceFaqsManager initialFaqs={faqs} />
       </section>
 
-      {/* Service & Repairs page */}
+      {/* Service & Repairs */}
       <section className="space-y-6">
-        <h2 className="text-lg font-bold text-navy">Service &amp; Repairs page</h2>
+        <h2 className="text-lg font-bold text-navy">Service &amp; Repairs</h2>
         <SiteContentForm initial={content} groups={SERVICE_GROUPS} />
         <ServicesManager initialServices={services} />
+      </section>
+
+      {/* About */}
+      <section className="space-y-6">
+        <h2 className="text-lg font-bold text-navy">About</h2>
+        <SiteContentForm initial={content} groups={ABOUT_GROUPS} />
+        <AboutValuesManager initialValues={values} />
+        <AboutTeamManager initialMembers={team} />
+      </section>
+
+      {/* Contact & footer */}
+      <section className="space-y-6">
+        <h2 className="text-lg font-bold text-navy">Contact</h2>
+        <SiteContentForm initial={content} groups={CONTACT_GROUPS} />
       </section>
     </div>
   );
