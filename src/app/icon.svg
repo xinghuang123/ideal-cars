@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="10" ry="10" fill="#ffffff"/>
+  <text
+    x="50%"
+    y="52%"
+    font-family="'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="44"
+    font-weight="900"
+    font-style="italic"
+    text-anchor="middle"
+    dominant-baseline="central"
+  ><tspan fill="#1E2A3A">I</tspan><tspan fill="#5BC0EB">C</tspan></text>
+</svg>
