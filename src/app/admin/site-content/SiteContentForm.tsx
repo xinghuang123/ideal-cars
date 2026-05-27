@@ -5,14 +5,25 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import {
   type SiteContent,
-  SITE_CONTENT_KEYS,
   FIELD_LABELS,
 } from "@/lib/site-content-keys";
 import { updateSiteContent } from "./actions";
 
-export default function SiteContentForm({ initial }: { initial: SiteContent }) {
+export type SiteContentGroup = {
+  title: string;
+  keys: (keyof SiteContent)[];
+};
+
+export default function SiteContentForm({
+  initial,
+  groups,
+}: {
+  initial: SiteContent;
+  groups: SiteContentGroup[];
+}) {
+  const formKeys = groups.flatMap((g) => g.keys.map((k) => String(k)));
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(SITE_CONTENT_KEYS.map((k) => [k, initial[k] ?? ""])),
+    Object.fromEntries(formKeys.map((k) => [k, initial[k] ?? ""])),
   );
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{
@@ -36,50 +47,6 @@ export default function SiteContentForm({ initial }: { initial: SiteContent }) {
       setMessage({ type: "success", text: "Saved. Refresh any open pages to see changes." });
     }
   }
-
-  const groups: Array<{ title: string; keys: (keyof SiteContent)[] }> = [
-    {
-      title: "Contact details",
-      keys: ["phone", "email", "address"],
-    },
-    {
-      title: "Opening hours",
-      keys: ["hours_weekday", "hours_saturday", "hours_sunday"],
-    },
-    {
-      title: "Marketing copy",
-      keys: ["tagline", "hero_title", "hero_subtitle"],
-    },
-    {
-      title: "About page — Our Story",
-      keys: ["about_intro", "our_story_body"],
-    },
-    {
-      title: "Finance page copy",
-      keys: [
-        "page_finance_subtitle",
-        "finance_benefits_heading",
-        "finance_benefits_subtitle",
-        "finance_calculator_heading",
-        "finance_calculator_subtitle",
-        "finance_apply_heading",
-        "finance_apply_subtitle",
-        "finance_faq_heading",
-        "finance_faq_subtitle",
-      ],
-    },
-    {
-      title: "Service & Repairs page copy",
-      keys: [
-        "page_service_subtitle",
-        "service_intro_heading",
-        "service_intro_subtitle",
-        "service_cta_heading",
-        "service_cta_body",
-        "service_cta_button_text",
-      ],
-    },
-  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -136,7 +103,7 @@ export default function SiteContentForm({ initial }: { initial: SiteContent }) {
 
       <div className="flex justify-end">
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Saving..." : "Save all"}
+          {submitting ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>
