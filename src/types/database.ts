@@ -141,3 +141,24 @@ export interface AboutTeamMemberRow {
   created_at: string;
   updated_at: string;
 }
+
+export interface FinanceBenefitRow {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FinanceFaqRow {
+  id: string;
+  question: string;
+  answer: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

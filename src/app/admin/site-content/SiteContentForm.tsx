@@ -54,6 +54,31 @@ export default function SiteContentForm({ initial }: { initial: SiteContent }) {
       title: "About page — Our Story",
       keys: ["about_intro", "our_story_body"],
     },
+    {
+      title: "Finance page copy",
+      keys: [
+        "page_finance_subtitle",
+        "finance_benefits_heading",
+        "finance_benefits_subtitle",
+        "finance_calculator_heading",
+        "finance_calculator_subtitle",
+        "finance_apply_heading",
+        "finance_apply_subtitle",
+        "finance_faq_heading",
+        "finance_faq_subtitle",
+      ],
+    },
+    {
+      title: "Service & Repairs page copy",
+      keys: [
+        "page_service_subtitle",
+        "service_intro_heading",
+        "service_intro_subtitle",
+        "service_cta_heading",
+        "service_cta_body",
+        "service_cta_button_text",
+      ],
+    },
   ];
 
   return (

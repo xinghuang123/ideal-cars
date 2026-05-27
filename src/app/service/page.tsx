@@ -4,7 +4,10 @@ import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Button from "@/components/ui/Button";
-import { services } from "@/data/services";
+import { getSiteContent } from "@/lib/site-content";
+import { getActiveServices } from "@/lib/services";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Service & Repairs | Ideal Cars",
@@ -19,22 +22,27 @@ const iconMap: Record<string, string> = {
   circle: "T",
   search: "P",
   zap: "E",
+  "clipboard-check": "P",
 };
 
-export default function ServicePage() {
+export default async function ServicePage() {
+  const [content, services] = await Promise.all([
+    getSiteContent(),
+    getActiveServices(),
+  ]);
   return (
     <>
       <PageHeader
         title="Service & Repairs"
-        subtitle="Professional vehicle servicing and repairs by experienced mechanics."
+        subtitle={content.page_service_subtitle}
       />
 
       {/* Intro */}
       <section className="py-12 sm:py-16">
         <Container>
           <SectionHeading
-            title="Our Services"
-            subtitle="From routine maintenance to complex repairs, our qualified mechanics keep your vehicle running at its best."
+            title={content.service_intro_heading}
+            subtitle={content.service_intro_subtitle}
           />
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -43,9 +51,9 @@ export default function ServicePage() {
                 key={service.id}
                 className="flex flex-col rounded-xl border border-silver bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
               >
-                {/* Icon placeholder */}
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-xl font-bold text-accent">
-                  {iconMap[service.icon] || service.title.charAt(0)}
+                  {(service.icon && iconMap[service.icon]) ||
+                    service.title.charAt(0)}
                 </div>
 
                 <h3 className="mb-2 text-lg font-bold text-navy">
@@ -55,7 +63,6 @@ export default function ServicePage() {
                   {service.description}
                 </p>
 
-                {/* Feature list */}
                 <ul className="mt-auto space-y-2">
                   {service.features.map((feature) => (
                     <li
@@ -89,15 +96,14 @@ export default function ServicePage() {
       <section className="bg-navy py-12 sm:py-16">
         <Container className="text-center">
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Ready to Book a Service?
+            {content.service_cta_heading}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-silver">
-            Get in touch with our team to schedule your next service or repair.
-            We offer competitive pricing and quality workmanship.
+            {content.service_cta_body}
           </p>
           <div className="mt-8">
             <Button asChild size="lg">
-              <Link href="/contact">Book a Service</Link>
+              <Link href="/contact">{content.service_cta_button_text}</Link>
             </Button>
           </div>
         </Container>
