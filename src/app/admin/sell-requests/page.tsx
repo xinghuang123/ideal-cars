@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/admin/StatusBadge";
 import StatusActions from "@/components/admin/StatusActions";
+import ReplyForm from "@/components/admin/ReplyForm";
 import { formatPrice, formatMileage } from "@/lib/utils";
 import type {
   EnquiryStatus,
@@ -104,6 +105,16 @@ export default async function SellRequestsPage() {
 
               <div className="mt-3">
                 <StatusActions table="sell_car_enquiries" id={r.id} status={r.status} />
+              </div>
+
+              <div className="mt-3">
+                <ReplyForm
+                  table="sell_car_enquiries"
+                  id={r.id}
+                  to={r.email}
+                  customerName={r.name}
+                  defaultSubject={`Your ${r.year} ${r.make} ${r.model} - Ideal Cars`}
+                />
               </div>
             </li>
           ))}

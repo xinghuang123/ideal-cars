@@ -130,6 +130,61 @@ export async function sendTransactionalEmail(args: {
   }
 }
 
+/**
+ * Sends an admin's reply to a customer enquiry. From the branded site
+ * address, with reply-to set to the dealership inbox so any further
+ * back-and-forth lands in a real mailbox. Reports the outcome.
+ */
+export async function sendEnquiryReply(args: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<{ ok: true } | { error: string }> {
+  const resend = getResend();
+  if (!resend) {
+    return { error: "Email service not configured (RESEND_API_KEY missing)" };
+  }
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: args.to,
+      subject: args.subject,
+      html: args.html,
+      replyTo: process.env.EMAIL_REPLY_TO ?? "idealcarsnzltd@gmail.com",
+    });
+    if (error) {
+      console.error("[email] sendEnquiryReply failed:", error);
+      return { error: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[email] sendEnquiryReply threw:", err);
+    return {
+      error: err instanceof Error ? err.message : "Email failed to send",
+    };
+  }
+}
+
+/** Branded wrapper for an admin's free-text reply to an enquiry. */
+export function renderEnquiryReplyEmail(
+  customerName: string | null,
+  message: string,
+): string {
+  const safeName = customerName ? escapeHtml(customerName.split(" ")[0]) : "there";
+  const safeBody = escapeHtml(message).replace(/\n/g, "<br/>");
+  return emailShell(
+    "A reply from Ideal Cars",
+    `
+      <p>Kia ora ${safeName},</p>
+      <div style="margin-top: 8px;">${safeBody}</div>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+      <p style="font-size: 12px; color: #5b6570; margin-top: 16px;">
+        You can reply directly to this email to continue the conversation.
+      </p>
+    `,
+  );
+}
+
 export function escapeHtml(input: string): string {
   return input
     .replace(/&/g, "&amp;")

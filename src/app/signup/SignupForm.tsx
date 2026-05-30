@@ -65,6 +65,10 @@ export default function SignupForm() {
           We sent a confirmation link to <strong>{email}</strong>. Click it to
           activate your account.
         </p>
+        <p className="mt-2">
+          The link is valid for <strong>24 hours</strong>. If it expires, just
+          sign up again to receive a new one. Remember to check your spam folder.
+        </p>
       </div>
     );
   }

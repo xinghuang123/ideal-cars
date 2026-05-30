@@ -28,6 +28,11 @@ export interface SiteContent {
   service_cta_heading: string;
   service_cta_body: string;
   service_cta_button_text: string;
+  facebook_url: string;
+  instagram_url: string;
+  x_url: string;
+  youtube_url: string;
+  tiktok_url: string;
   [key: string]: string;
 }
 
@@ -67,6 +72,11 @@ export const DEFAULTS: SiteContent = {
   service_cta_body:
     "Get in touch with our team to schedule your next service or repair. We offer competitive pricing and quality workmanship.",
   service_cta_button_text: "Book a Service",
+  facebook_url: "",
+  instagram_url: "",
+  x_url: "",
+  youtube_url: "",
+  tiktok_url: "",
 };
 
 export const SITE_CONTENT_KEYS = Object.keys(DEFAULTS) as (keyof SiteContent)[];
@@ -98,4 +108,9 @@ export const FIELD_LABELS: Record<keyof SiteContent, { label: string; type: "tex
   service_cta_heading: { label: "Service — CTA heading", type: "text" },
   service_cta_body: { label: "Service — CTA body", type: "textarea" },
   service_cta_button_text: { label: "Service — CTA button text", type: "text" },
+  facebook_url: { label: "Facebook URL (leave blank to hide icon)", type: "text" },
+  instagram_url: { label: "Instagram URL (leave blank to hide icon)", type: "text" },
+  x_url: { label: "X / Twitter URL (leave blank to hide icon)", type: "text" },
+  youtube_url: { label: "YouTube URL (leave blank to hide icon)", type: "text" },
+  tiktok_url: { label: "TikTok URL (leave blank to hide icon)", type: "text" },
 };

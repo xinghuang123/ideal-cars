@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/admin/StatusBadge";
 import StatusActions from "@/components/admin/StatusActions";
+import ReplyForm from "@/components/admin/ReplyForm";
 import type { EnquiryStatus, EnquirySubject } from "@/types/database";
 
 interface ContactEnquiryRow {
@@ -83,6 +84,16 @@ export default async function ContactEnquiriesPage() {
 
               <div className="mt-3">
                 <StatusActions table="contact_enquiries" id={e.id} status={e.status} />
+              </div>
+
+              <div className="mt-3">
+                <ReplyForm
+                  table="contact_enquiries"
+                  id={e.id}
+                  to={e.email}
+                  customerName={e.name}
+                  defaultSubject={`Re: ${e.subject} - Ideal Cars`}
+                />
               </div>
             </li>
           ))}

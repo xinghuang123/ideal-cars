@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import CustomersList, { type CustomerListItem } from "./CustomersList";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +49,17 @@ export default async function CustomersPage() {
   const rows = (profiles ?? []) as CustomerRow[];
   const hasError = Boolean(error);
 
+  const customers: CustomerListItem[] = rows.map((c) => ({
+    id: c.id,
+    full_name: c.full_name,
+    email: emailById[c.id] || "",
+    phone: c.phone,
+    city: c.city,
+    region: c.region,
+    created_at: c.created_at,
+    vehicleCount: c.customer_vehicles?.[0]?.count ?? 0,
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -73,44 +84,7 @@ export default async function CustomersPage() {
           No customers yet. Customers appear here after they sign up.
         </div>
       ) : (
-        <ul className="space-y-3">
-          {rows.map((c) => (
-            <li
-              key={c.id}
-              className="rounded-xl border border-silver bg-white p-5 shadow-sm"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <Link
-                    href={`/admin/customers/${c.id}`}
-                    className="text-lg font-semibold text-navy hover:text-accent"
-                  >
-                    {c.full_name || "(no name set)"}
-                  </Link>
-                  <p className="mt-1 text-sm text-silver-dark">
-                    {emailById[c.id] || "(no email)"}{" "}
-                    {c.phone && (
-                      <>
-                        ·{" "}
-                        <a href={`tel:${c.phone}`} className="text-accent hover:underline">
-                          {c.phone}
-                        </a>
-                      </>
-                    )}
-                  </p>
-                  <p className="mt-1 text-xs text-silver-dark">
-                    {[c.city, c.region].filter(Boolean).join(", ") || "—"} ·{" "}
-                    {c.customer_vehicles?.[0]?.count ?? 0} vehicle
-                    {(c.customer_vehicles?.[0]?.count ?? 0) === 1 ? "" : "s"}
-                  </p>
-                </div>
-                <span className="whitespace-nowrap text-xs text-silver-dark">
-                  Joined {new Date(c.created_at).toLocaleDateString("en-NZ")}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <CustomersList customers={customers} />
       )}
     </div>
   );

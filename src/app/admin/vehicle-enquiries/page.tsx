@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import StatusBadge from "@/components/admin/StatusBadge";
 import StatusActions from "@/components/admin/StatusActions";
+import ReplyForm from "@/components/admin/ReplyForm";
 import type { EnquiryStatus } from "@/types/database";
 
 interface VehicleEnquiryRow {
@@ -111,6 +112,20 @@ export default async function VehicleEnquiriesPage() {
                   table="vehicle_enquiries"
                   id={e.id}
                   status={e.status}
+                />
+              </div>
+
+              <div className="mt-3">
+                <ReplyForm
+                  table="vehicle_enquiries"
+                  id={e.id}
+                  to={e.email}
+                  customerName={e.name}
+                  defaultSubject={`Re: ${
+                    e.vehicles
+                      ? `${e.vehicles.year} ${e.vehicles.make} ${e.vehicles.model}`
+                      : "your enquiry"
+                  } - Ideal Cars`}
                 />
               </div>
             </li>

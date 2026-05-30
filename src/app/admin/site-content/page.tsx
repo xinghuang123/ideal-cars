@@ -24,6 +24,13 @@ const HOMEPAGE_GROUPS: SiteContentGroup[] = [
   },
 ];
 
+const SOCIAL_GROUPS: SiteContentGroup[] = [
+  {
+    title: "Social media links (shown as icons in the footer)",
+    keys: ["facebook_url", "instagram_url", "x_url", "youtube_url", "tiktok_url"],
+  },
+];
+
 const FINANCE_GROUPS: SiteContentGroup[] = [
   {
     title: "Finance page copy",
@@ -96,6 +103,7 @@ export default async function SiteContentPage() {
         <h2 className="text-lg font-bold text-navy">Home</h2>
         <HeroSlidesManager initialSlides={slides} />
         <SiteContentForm initial={content} groups={HOMEPAGE_GROUPS} />
+        <SiteContentForm initial={content} groups={SOCIAL_GROUPS} />
       </section>
 
       {/* Finance */}
