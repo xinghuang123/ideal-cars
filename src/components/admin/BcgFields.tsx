@@ -191,7 +191,7 @@ export default function BcgFields({
           <Input
             label="Front left"
             type="number"
-            step={0.5}
+            step={0.1}
             min={0}
             value={value.tyreDepths.frontLeft}
             onChange={(e) => setTyre("frontLeft", Number(e.target.value))}
@@ -199,7 +199,7 @@ export default function BcgFields({
           <Input
             label="Front right"
             type="number"
-            step={0.5}
+            step={0.1}
             min={0}
             value={value.tyreDepths.frontRight}
             onChange={(e) => setTyre("frontRight", Number(e.target.value))}
@@ -207,7 +207,7 @@ export default function BcgFields({
           <Input
             label="Rear left"
             type="number"
-            step={0.5}
+            step={0.1}
             min={0}
             value={value.tyreDepths.rearLeft}
             onChange={(e) => setTyre("rearLeft", Number(e.target.value))}
@@ -215,7 +215,7 @@ export default function BcgFields({
           <Input
             label="Rear right"
             type="number"
-            step={0.5}
+            step={0.1}
             min={0}
             value={value.tyreDepths.rearRight}
             onChange={(e) => setTyre("rearRight", Number(e.target.value))}
@@ -223,7 +223,7 @@ export default function BcgFields({
           <Input
             label="Spare"
             type="number"
-            step={0.5}
+            step={0.1}
             min={0}
             value={value.tyreDepths.spare ?? ""}
             onChange={(e) => {

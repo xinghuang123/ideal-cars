@@ -106,7 +106,7 @@ export default function CinFields({
             label="Cash price (NZD)"
             type="number"
             min={0}
-            step={100}
+            step="any"
             value={value.cashPrice}
             onChange={(e) => set("cashPrice", Number(e.target.value))}
           />

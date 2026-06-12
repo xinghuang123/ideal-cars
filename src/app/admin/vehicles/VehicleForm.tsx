@@ -426,7 +426,7 @@ export default function VehicleForm({
             name="price"
             type="number"
             min={0}
-            step={100}
+            step="any"
             defaultValue={initial?.price ?? draft?.price ?? ""}
             required
           />
