@@ -46,8 +46,11 @@ function loadDraft(): Record<string, string> | null {
 
 export default function VehicleForm({
   initial,
+  traderRegoNumber,
 }: {
   initial?: VehicleRow;
+  /** Editable in Admin → Site Content; used when seeding a new CIN. */
+  traderRegoNumber?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -94,6 +97,9 @@ export default function VehicleForm({
       rego_expiry: String(form.get("rego_expiry") ?? ""),
       fuel_type: String(form.get("fuel_type") ?? "Petrol"),
     });
+    if (traderRegoNumber?.trim()) {
+      seed.trader.traderRegistrationNumber = traderRegoNumber.trim();
+    }
     if (!base) return seed;
     return {
       ...base,

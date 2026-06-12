@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteContent } from "@/lib/site-content";
 import VehicleForm from "../../VehicleForm";
 import VehicleImageManager from "./VehicleImageManager";
 import PublishToggle from "../../PublishToggle";
@@ -12,6 +13,7 @@ export default async function EditVehiclePage({
   params: { id: string };
 }) {
   const supabase = createClient();
+  const content = await getSiteContent();
   const { data } = await supabase
     .from("vehicles")
     .select("*")
@@ -67,7 +69,10 @@ export default async function EditVehiclePage({
 
       <div className="rounded-xl border border-silver bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-bold text-navy">Details</h2>
-        <VehicleForm initial={vehicle} />
+        <VehicleForm
+          initial={vehicle}
+          traderRegoNumber={content.trader_registration_number}
+        />
       </div>
     </div>
   );

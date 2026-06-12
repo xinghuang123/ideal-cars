@@ -33,6 +33,7 @@ export interface SiteContent {
   x_url: string;
   youtube_url: string;
   tiktok_url: string;
+  trader_registration_number: string;
   [key: string]: string;
 }
 
@@ -77,6 +78,7 @@ export const DEFAULTS: SiteContent = {
   x_url: "",
   youtube_url: "",
   tiktok_url: "",
+  trader_registration_number: "M051177",
 };
 
 export const SITE_CONTENT_KEYS = Object.keys(DEFAULTS) as (keyof SiteContent)[];
@@ -113,4 +115,8 @@ export const FIELD_LABELS: Record<keyof SiteContent, { label: string; type: "tex
   x_url: { label: "X / Twitter URL (leave blank to hide icon)", type: "text" },
   youtube_url: { label: "YouTube URL (leave blank to hide icon)", type: "text" },
   tiktok_url: { label: "TikTok URL (leave blank to hide icon)", type: "text" },
+  trader_registration_number: {
+    label: "Trader registration number (used on new CINs)",
+    type: "text",
+  },
 };

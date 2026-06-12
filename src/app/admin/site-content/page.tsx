@@ -67,7 +67,10 @@ const ABOUT_GROUPS: SiteContentGroup[] = [
 ];
 
 const CONTACT_GROUPS: SiteContentGroup[] = [
-  { title: "Contact details", keys: ["phone", "email", "address"] },
+  {
+    title: "Contact details",
+    keys: ["phone", "email", "address", "trader_registration_number"],
+  },
   {
     title: "Opening hours",
     keys: ["hours_weekday", "hours_saturday", "hours_sunday"],

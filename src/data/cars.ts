@@ -39,7 +39,7 @@ export const cars: Car[] = [
         name: "Ideal Cars Limited",
         address: "64 Broad Street, Woolston, Christchurch 8062",
         isRegisteredTrader: true,
-        traderRegistrationNumber: "MV123456",
+        traderRegistrationNumber: "M051177",
         phone: "020 4190 7335",
         contactPerson: "Johnie Moore",
       },

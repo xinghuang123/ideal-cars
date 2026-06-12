@@ -1,7 +1,9 @@
 import Link from "next/link";
 import VehicleForm from "../VehicleForm";
+import { getSiteContent } from "@/lib/site-content";
 
-export default function NewVehiclePage() {
+export default async function NewVehiclePage() {
+  const content = await getSiteContent();
   return (
     <div className="space-y-6">
       <div>
@@ -24,7 +26,7 @@ export default function NewVehiclePage() {
         </p>
       </div>
       <div className="rounded-xl border border-silver bg-white p-6 shadow-sm">
-        <VehicleForm />
+        <VehicleForm traderRegoNumber={content.trader_registration_number} />
       </div>
     </div>
   );

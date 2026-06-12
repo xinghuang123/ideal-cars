@@ -7,6 +7,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import fs from "fs";
+import SignatureSection from "./SignatureSection";
 import path from "path";
 import type { Car } from "@/types/car";
 
@@ -390,6 +391,8 @@ export default function CinPdf({ car }: { car: Car }) {
             </View>
           </View>
         </View>
+
+        <SignatureSection documentNoun="notice" traderName={cin.trader.name} />
 
         <Text
           style={styles.footer}

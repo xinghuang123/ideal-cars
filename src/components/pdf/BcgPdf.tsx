@@ -8,6 +8,7 @@ import {
 } from "@react-pdf/renderer";
 import fs from "fs";
 import path from "path";
+import SignatureSection from "./SignatureSection";
 import type { Car, BcgChecklistItem } from "@/types/car";
 
 let logoSrc: { data: Buffer; format: "png" } | null = null;
@@ -406,6 +407,8 @@ export default function BcgPdf({ car }: { car: Car }) {
             <Field label="General" value={bcg.generalComments} />
           )}
         </View>
+
+        <SignatureSection documentNoun="guide" traderName={bcg.publisherName} />
 
         <Text
           style={styles.footer}
