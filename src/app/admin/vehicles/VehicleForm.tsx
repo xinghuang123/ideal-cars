@@ -26,6 +26,7 @@ import BcgFields, {
 import { clearVehicleCin, updateVehicleCin } from "./[id]/cin/actions";
 import { clearVehicleBcg, updateVehicleBcg } from "./[id]/bcg/actions";
 import { createVehicle, updateVehicle } from "./actions";
+import { lookupPlate, type PlateLookupResult } from "./carjam-actions";
 
 const driveTypes = ["FWD", "RWD", "AWD", "4WD"] as const;
 const statuses = ["available", "special", "sold"] as const;
@@ -55,6 +56,12 @@ export default function VehicleForm({
   const isEdit = Boolean(initial);
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [plate, setPlate] = useState("");
+  const [plateLooking, setPlateLooking] = useState(false);
+  const [plateMsg, setPlateMsg] = useState<{
+    kind: "ok" | "error";
+    text: string;
+  } | null>(null);
   const [draft] = useState<Record<string, string> | null>(() =>
     isEdit ? null : loadDraft(),
   );
@@ -331,8 +338,116 @@ export default function VehicleForm({
     });
   }
 
+  function applyLookup(d: PlateLookupResult) {
+    const form = formRef.current;
+    if (!form) return;
+    const filled: string[] = [];
+    const unmatched: string[] = [];
+
+    const setField = (name: string, value: string | number | undefined) => {
+      if (value === undefined) return;
+      const el = form.elements.namedItem(name);
+      if (!el) return;
+      if (el instanceof HTMLSelectElement) {
+        const match = Array.from(el.options).find(
+          (o) => o.value.toLowerCase() === String(value).toLowerCase(),
+        );
+        if (match) {
+          el.value = match.value;
+          filled.push(name.replace(/_/g, " "));
+        } else {
+          unmatched.push(`${name.replace(/_/g, " ")} “${value}”`);
+        }
+      } else if (el instanceof HTMLInputElement) {
+        el.value = String(value);
+        filled.push(name.replace(/_/g, " "));
+      }
+    };
+
+    setField("make", d.make);
+    setField("model", d.model);
+    setField("year", d.year);
+    setField("vin", d.vin);
+    setField("colour", d.colour);
+    setField("body_type", d.bodyStyle);
+    setField("fuel_type", d.fuelType);
+    setField("transmission", d.transmission);
+    setField("engine_size", d.engineSize);
+    setField("seats", d.seats);
+    setField("wof_expiry", d.wofExpiry);
+    setField("rego_expiry", d.regoExpiry);
+
+    const parts: string[] = [];
+    if (filled.length) parts.push(`Filled: ${filled.join(", ")}.`);
+    if (unmatched.length)
+      parts.push(`Set manually (no matching option): ${unmatched.join(", ")}.`);
+    setPlateMsg({
+      kind: "ok",
+      text: parts.join(" ") || "No fields could be filled.",
+    });
+  }
+
+  async function handlePlateLookup() {
+    if (!plate.trim() || plateLooking) return;
+    setPlateLooking(true);
+    setPlateMsg(null);
+    try {
+      const result = await lookupPlate(plate);
+      if (result.error) {
+        setPlateMsg({ kind: "error", text: result.error });
+      } else if (result.data) {
+        applyLookup(result.data);
+      }
+    } finally {
+      setPlateLooking(false);
+    }
+  }
+
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-8">
+      <div className="rounded-lg border border-accent/40 bg-accent/5 p-4">
+        <p className="text-sm font-semibold text-navy">
+          Fill from rego (CarJam)
+        </p>
+        <p className="mt-0.5 text-xs text-silver-dark">
+          Enter the number plate to pull make, model, year, VIN, WoF and rego
+          dates from NZ vehicle records. Each lookup uses CarJam credit.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            value={plate}
+            onChange={(e) => setPlate(e.target.value.toUpperCase())}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void handlePlateLookup();
+              }
+            }}
+            placeholder="e.g. ABC123"
+            maxLength={8}
+            className="w-36 rounded-lg border border-silver bg-white px-3 py-2 font-mono text-sm uppercase tracking-widest text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void handlePlateLookup()}
+            disabled={plateLooking || !plate.trim()}
+          >
+            {plateLooking ? "Looking up…" : "Look up vehicle"}
+          </Button>
+        </div>
+        {plateMsg && (
+          <p
+            className={`mt-2 text-sm ${
+              plateMsg.kind === "error" ? "text-red-700" : "text-green-700"
+            }`}
+          >
+            {plateMsg.text}
+          </p>
+        )}
+      </div>
+
       {!isEdit && draft && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
           Restored a saved draft. Edit any field and save when ready, or
