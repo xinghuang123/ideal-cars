@@ -27,6 +27,7 @@ import { clearVehicleCin, updateVehicleCin } from "./[id]/cin/actions";
 import { clearVehicleBcg, updateVehicleBcg } from "./[id]/bcg/actions";
 import { createVehicle, updateVehicle } from "./actions";
 import { lookupPlate, type PlateLookupResult } from "./carjam-actions";
+import { formatNzDate } from "@/lib/utils";
 
 const driveTypes = ["FWD", "RWD", "AWD", "4WD"] as const;
 const statuses = ["available", "special", "sold"] as const;
@@ -377,10 +378,41 @@ export default function VehicleForm({
     setField("wof_expiry", d.wofExpiry);
     setField("rego_expiry", d.regoExpiry);
 
+    // Also sync the CIN section when it's in use — plate, registration,
+    // WoF/licence dates and engine cc live there for the legal notice.
+    if (cin) {
+      const cleanedPlate = plate.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      setCin({
+        ...cin,
+        vin: d.vin ?? cin.vin,
+        engineCapacityCc: d.engineCc ?? cin.engineCapacityCc,
+        hasWofOrCof: d.wofExpiry ? true : cin.hasWofOrCof,
+        wofOrCofExpiry: d.wofExpiry
+          ? formatNzDate(d.wofExpiry)
+          : cin.wofOrCofExpiry,
+        hasVehicleLicence: d.regoExpiry ? true : cin.hasVehicleLicence,
+        vehicleLicenceExpiry: d.regoExpiry
+          ? formatNzDate(d.regoExpiry)
+          : cin.vehicleLicenceExpiry,
+        isRegistered: true,
+        regoPlate: cleanedPlate || cin.regoPlate,
+        nzFirstRegistered: d.nzFirstRegistered
+          ? formatNzDate(d.nzFirstRegistered)
+          : cin.nzFirstRegistered,
+        operatingFuelType: d.fuelType ?? cin.operatingFuelType,
+      });
+      setCinDirty(true);
+      filled.push("CIN registration details");
+    }
+
     const parts: string[] = [];
     if (filled.length) parts.push(`Filled: ${filled.join(", ")}.`);
     if (unmatched.length)
       parts.push(`Set manually (no matching option): ${unmatched.join(", ")}.`);
+    if (!cin)
+      parts.push(
+        "Tip: open the CIN section first if you also want the rego plate and registration details filled there.",
+      );
     setPlateMsg({
       kind: "ok",
       text: parts.join(" ") || "No fields could be filled.",

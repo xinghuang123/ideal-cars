@@ -3,6 +3,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import Container from "@/components/ui/Container";
 import ContactForm from "@/components/forms/ContactForm";
 import { getSiteContent } from "@/lib/site-content";
+import SocialLinks, { hasSocialLinks } from "@/components/layout/SocialLinks";
 import { toTelHref } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -152,33 +153,13 @@ export default async function ContactPage() {
                 </ul>
               </div>
 
-              {/* Social Media */}
-              <div className="rounded-xl border border-silver bg-white p-6 shadow-sm">
-                <h3 className="mb-3 font-bold text-navy">Follow Us</h3>
-                <div className="flex gap-3">
-                  <a
-                    href="#"
-                    aria-label="Facebook"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy text-white transition-colors hover:bg-accent"
-                  >
-                    <span className="text-sm font-bold">f</span>
-                  </a>
-                  <a
-                    href="#"
-                    aria-label="Instagram"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy text-white transition-colors hover:bg-accent"
-                  >
-                    <span className="text-sm font-bold">in</span>
-                  </a>
-                  <a
-                    href="#"
-                    aria-label="YouTube"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy text-white transition-colors hover:bg-accent"
-                  >
-                    <span className="text-sm font-bold">yt</span>
-                  </a>
+              {/* Social Media — same editable links as the footer */}
+              {hasSocialLinks(content) && (
+                <div className="rounded-xl border border-silver bg-white p-6 shadow-sm">
+                  <h3 className="mb-3 font-bold text-navy">Follow Us</h3>
+                  <SocialLinks content={content} variant="card" />
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </Container>

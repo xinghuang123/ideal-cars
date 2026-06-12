@@ -4,6 +4,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import type { ConsumerInformationNotice } from "@/types/car";
 import { DEFAULT_TRADER } from "@/lib/bcg-template";
+import { formatNzDate } from "@/lib/utils";
 
 export function defaultCinFromVehicle(input: {
   price?: number | null;
@@ -23,9 +24,9 @@ export function defaultCinFromVehicle(input: {
     hasRadio88to108: true,
     vin: input.vin ?? "",
     hasWofOrCof: true,
-    wofOrCofExpiry: input.wof_expiry ?? "",
+    wofOrCofExpiry: formatNzDate(input.wof_expiry),
     hasVehicleLicence: true,
-    vehicleLicenceExpiry: input.rego_expiry ?? "",
+    vehicleLicenceExpiry: formatNzDate(input.rego_expiry),
     isRegistered: true,
     regoPlate: "",
     nzFirstRegistered: "",

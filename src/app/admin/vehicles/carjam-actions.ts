@@ -17,10 +17,12 @@ export interface PlateLookupResult {
   fuelType?: string;
   transmission?: string;
   engineSize?: string;
+  engineCc?: number;
   colour?: string;
   seats?: number;
   wofExpiry?: string;
   regoExpiry?: string;
+  nzFirstRegistered?: string;
 }
 
 type Raw = Record<string, unknown>;
@@ -152,10 +154,14 @@ export async function lookupPlate(
     fuelType: normalizeFuel(v.fuel_type),
     transmission: normalizeTransmission(v.transmission),
     engineSize: cc ? `${(Math.round(cc / 100) / 10).toFixed(1)}L` : undefined,
+    engineCc: cc,
     colour: titleCase(v.main_colour ?? v.colour ?? v.basic_colour),
     seats: num(v.number_of_seats ?? v.no_of_seats),
     wofExpiry: toIsoDate(v.expiry_date_of_last_successful_wof),
     regoExpiry: toIsoDate(v.licence_expiry_date ?? v.expiry_date_of_licence),
+    nzFirstRegistered: toIsoDate(
+      v.date_of_first_registration_in_nz ?? v.first_registered_date_nz,
+    ),
   };
 
   const found = Object.values(data).filter((x) => x !== undefined).length;

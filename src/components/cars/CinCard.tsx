@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ConsumerInformationNotice } from "@/types/car";
+import { formatNzDate } from "@/lib/utils";
 
 interface CinCardProps {
   cin?: ConsumerInformationNotice;
@@ -140,7 +141,7 @@ function CinFrontPage({
             value={cin.hasWofOrCof ? "Yes" : "No"}
             highlight={!cin.hasWofOrCof}
           />
-          <CinRow label="WoF / CoF expiry date" value={cin.wofOrCofExpiry} />
+          <CinRow label="WoF / CoF expiry date" value={formatNzDate(cin.wofOrCofExpiry)} />
           <CinRow
             label="Vehicle licence"
             value={cin.hasVehicleLicence ? "Yes" : "No"}
@@ -148,7 +149,7 @@ function CinFrontPage({
           />
           <CinRow
             label="Vehicle licence expiry date"
-            value={cin.vehicleLicenceExpiry}
+            value={formatNzDate(cin.vehicleLicenceExpiry)}
           />
         </div>
       </div>
@@ -164,7 +165,7 @@ function CinFrontPage({
           <CinRow label="Registration plate" value={cin.regoPlate} />
           <CinRow
             label="Year first registered in NZ"
-            value={cin.nzFirstRegistered}
+            value={formatNzDate(cin.nzFirstRegistered)}
           />
           <CinRow
             label="Re-registered vehicle"
@@ -197,7 +198,7 @@ function CinFrontPage({
         <div className="divide-y divide-gray-100">
           <CinRow
             label="Year first registered overseas"
-            value={cin.overseasFirstRegistered}
+            value={formatNzDate(cin.overseasFirstRegistered)}
           />
           <CinRow
             label="Country where last registered"
