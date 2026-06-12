@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getReminderSettings } from "@/lib/reminder-settings";
 import {
   emailCustomer,
   renderServiceReminderEmail,
@@ -55,6 +56,12 @@ export async function GET(request: NextRequest) {
 
   const admin = createAdminClient();
 
+  // Admin-controlled toggles (site_content). Disabled types are skipped.
+  const settings = await getReminderSettings(admin);
+  if (!settings.service && !settings.wof && !settings.rego) {
+    return NextResponse.json({ ok: true, sent: 0, jobs: 0, disabled: true });
+  }
+
   const { data: vehicles, error } = await admin
     .from("customer_vehicles")
     .select(
@@ -71,17 +78,17 @@ export async function GET(request: NextRequest) {
 
   const jobs: ReminderJob[] = [];
   for (const v of (vehicles ?? []) as VehicleRow[]) {
-    if (v.next_service_due_date) {
+    if (settings.service && v.next_service_due_date) {
       const d = dayDiff(v.next_service_due_date);
       if (shouldRemind(d))
         jobs.push({ vehicle: v, type: "service", dueDate: v.next_service_due_date, daysUntil: d });
     }
-    if (v.next_wof_due_date) {
+    if (settings.wof && v.next_wof_due_date) {
       const d = dayDiff(v.next_wof_due_date);
       if (shouldRemind(d))
         jobs.push({ vehicle: v, type: "wof", dueDate: v.next_wof_due_date, daysUntil: d });
     }
-    if (v.rego_expiry_date) {
+    if (settings.rego && v.rego_expiry_date) {
       const d = dayDiff(v.rego_expiry_date);
       if (shouldRemind(d))
         jobs.push({ vehicle: v, type: "rego", dueDate: v.rego_expiry_date, daysUntil: d });

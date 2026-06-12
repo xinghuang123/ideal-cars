@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { getReminderSettings } from "@/lib/reminder-settings";
 import CustomersList, { type CustomerListItem } from "./CustomersList";
+import ReminderSettings from "./ReminderSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,8 @@ interface CustomerRow {
 
 export default async function CustomersPage() {
   const supabase = createClient();
+
+  const reminderSettings = await getReminderSettings(supabase);
 
   const { data: profiles, error } = await supabase
     .from("customer_profiles")
@@ -70,6 +74,8 @@ export default async function CustomersPage() {
             : `${rows.length} registered customer${rows.length === 1 ? "" : "s"}`}
         </p>
       </div>
+
+      <ReminderSettings initial={reminderSettings} />
 
       {hasError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800">
