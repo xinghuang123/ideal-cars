@@ -144,6 +144,7 @@ export async function setVehiclePublished(
   }
 
   revalidatePath("/admin/vehicles");
+  revalidatePath(`/admin/vehicles/${id}/edit`);
   revalidatePath("/admin");
   revalidatePath("/buy");
   revalidatePath(`/buy/${id}`);

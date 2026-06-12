@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import VehicleForm from "../../VehicleForm";
 import VehicleImageManager from "./VehicleImageManager";
+import PublishToggle from "../../PublishToggle";
 import type { VehicleImageRow, VehicleRow } from "@/types/database";
 
 export default async function EditVehiclePage({
@@ -29,6 +30,23 @@ export default async function EditVehiclePage({
 
   return (
     <div className="space-y-6">
+      {!vehicle.published && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-500 px-4 py-3 text-sm font-semibold text-white">
+          <span>
+            DRAFT — this vehicle is NOT visible to customers. Press Publish to
+            make it live.
+          </span>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/buy/${vehicle.id}`}
+              className="text-sm font-medium text-white underline hover:text-amber-100"
+            >
+              Preview listing
+            </Link>
+            <PublishToggle vehicleId={vehicle.id} published={vehicle.published} />
+          </div>
+        </div>
+      )}
       <div>
         <Link
           href="/admin/vehicles"

@@ -55,12 +55,16 @@ export async function getAllVehicles(): Promise<Car[]> {
   return ((data ?? []) as RowWithImages[]).map(dbToCar);
 }
 
+// Listing queries filter on published explicitly (in addition to RLS) so
+// that logged-in admins see exactly what customers see. Draft preview is
+// only possible on the detail page via getVehicleById.
 export async function getAvailableVehicles(): Promise<Car[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("vehicles")
     .select(SELECT_WITH_IMAGES)
     .in("status", ["available", "special"])
+    .eq("published", true)
     .order("created_at", { ascending: false });
   return ((data ?? []) as RowWithImages[]).map(dbToCar);
 }
@@ -71,6 +75,7 @@ export async function getSpecialVehicles(): Promise<Car[]> {
     .from("vehicles")
     .select(SELECT_WITH_IMAGES)
     .eq("status", "special")
+    .eq("published", true)
     .order("created_at", { ascending: false });
   return ((data ?? []) as RowWithImages[]).map(dbToCar);
 }
@@ -81,6 +86,7 @@ export async function getSoldVehicles(): Promise<Car[]> {
     .from("vehicles")
     .select(SELECT_WITH_IMAGES)
     .eq("status", "sold")
+    .eq("published", true)
     .order("created_at", { ascending: false });
   return ((data ?? []) as RowWithImages[]).map(dbToCar);
 }
