@@ -29,6 +29,13 @@ export default function CarCard({ car }: CarCardProps) {
           </div>
         )}
 
+        {/* Draft chip — only admins can ever receive unpublished cars */}
+        {car.published === false && (
+          <span className="absolute top-3 right-3 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+            Draft
+          </span>
+        )}
+
         {/* Status badge */}
         {car.status === "special" && (
           <Badge

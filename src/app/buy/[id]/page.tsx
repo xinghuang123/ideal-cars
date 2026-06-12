@@ -91,6 +91,16 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
   return (
     <>
+      {/* Only admins can ever load an unpublished vehicle (RLS hides it
+          from everyone else), so this banner is effectively admin-only. */}
+      {car.published === false && (
+        <div className="bg-amber-500 px-4 py-3 text-center text-sm font-semibold text-white">
+          DRAFT — this vehicle is NOT visible to customers. You can see it
+          because you are signed in as an admin. Publish it from the admin
+          Vehicles page to make it live.
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <div className="bg-gray-50 border-b border-gray-200">
         <Container>
