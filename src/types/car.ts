@@ -17,6 +17,8 @@ export interface Car {
   features: string[];
   description: string;
   status: "available" | "sold" | "special";
+  /** Drafts (false) are only visible in the admin panel. */
+  published?: boolean;
   wofExpiry: string;
   regoExpiry: string;
   vin?: string;

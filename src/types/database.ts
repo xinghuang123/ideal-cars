@@ -36,6 +36,7 @@ export interface VehicleRow {
   features: string[];
   description: string | null;
   status: VehicleStatus;
+  published: boolean;
   wof_expiry: string | null;
   rego_expiry: string | null;
   vin: string | null;

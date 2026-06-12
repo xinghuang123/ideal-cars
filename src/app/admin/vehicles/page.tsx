@@ -3,6 +3,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, formatMileage } from "@/lib/utils";
 import DeleteVehicleButton from "./DeleteVehicleButton";
+import PublishToggle from "./PublishToggle";
 import type { VehicleImageRow, VehicleRow } from "@/types/database";
 
 const statusStyles = {
@@ -124,14 +125,26 @@ export default async function VehiclesAdminPage() {
                     {formatMileage(v.mileage)}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium uppercase ${statusStyles[v.status]}`}
-                    >
-                      {v.status}
-                    </span>
+                    <div className="flex flex-col items-start gap-1">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium uppercase ${statusStyles[v.status]}`}
+                      >
+                        {v.status}
+                      </span>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
+                          v.published
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        {v.published ? "Published" : "Draft"}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
                     <div className="flex items-center justify-end gap-3">
+                      <PublishToggle vehicleId={v.id} published={v.published} />
                       <Link
                         href={`/admin/vehicles/${v.id}/edit`}
                         className="text-xs font-medium text-accent hover:text-accent-dark"

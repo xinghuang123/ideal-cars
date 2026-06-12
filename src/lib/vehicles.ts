@@ -33,6 +33,7 @@ export function dbToCar(row: RowWithImages): Car {
     features: row.features ?? [],
     description: row.description ?? "",
     status: row.status,
+    published: row.published,
     wofExpiry: row.wof_expiry ?? "",
     regoExpiry: row.rego_expiry ?? "",
     vin: row.vin ?? undefined,

@@ -125,6 +125,32 @@ export async function updateVehicle(id: string, formData: FormData) {
   redirect("/admin/vehicles");
 }
 
+export async function setVehiclePublished(
+  id: string,
+  published: boolean,
+): Promise<{ ok?: true; error?: string }> {
+  const supabase = createClient();
+
+  // Read back the updated row so a stale session (RLS matching 0 rows
+  // without an error) fails loudly instead of reporting fake success.
+  const { data, error } = await supabase
+    .from("vehicles")
+    .update({ published })
+    .eq("id", id)
+    .select("id");
+  if (error) return { error: error.message };
+  if (!data || data.length === 0) {
+    return { error: "Nothing updated — your session may have expired. Please sign in again." };
+  }
+
+  revalidatePath("/admin/vehicles");
+  revalidatePath("/admin");
+  revalidatePath("/buy");
+  revalidatePath(`/buy/${id}`);
+  revalidatePath("/");
+  return { ok: true };
+}
+
 export async function deleteVehicle(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("vehicles").delete().eq("id", id);

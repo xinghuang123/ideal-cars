@@ -752,6 +752,14 @@ export default function VehicleForm({
         </div>
       </details>
 
+      {!isEdit && (
+        <p className="text-sm text-silver-dark">
+          New vehicles are created as <strong>drafts</strong> — they stay
+          hidden from the public site until you press Publish in the Vehicles
+          list.
+        </p>
+      )}
+
       <div className="flex flex-wrap gap-3">
         <Button type="submit" size="lg" disabled={pending}>
           {pending
