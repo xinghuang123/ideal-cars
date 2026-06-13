@@ -165,37 +165,20 @@ export default async function ContactPage() {
         </Container>
       </section>
 
-      {/* Map Placeholder */}
+      {/* Map */}
       <section className="pb-12 sm:pb-16">
         <Container>
-          <div className="flex h-80 items-center justify-center rounded-xl bg-gray-200">
-            <div className="text-center">
-              <svg
-                className="mx-auto mb-2 h-12 w-12 text-silver-dark"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <p className="text-lg font-semibold text-silver-dark">
-                Map — {content.address}
-              </p>
-              <p className="text-sm text-silver-dark">
-                Google Maps integration placeholder
-              </p>
-            </div>
+          <div className="overflow-hidden rounded-xl border border-silver shadow-sm">
+            <iframe
+              title={`Map showing the location of Ideal Cars — ${content.address}`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(
+                content.address,
+              )}&output=embed`}
+              className="h-80 w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
           </div>
         </Container>
       </section>
