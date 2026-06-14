@@ -4,6 +4,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const FROM_EMAIL =
   process.env.EMAIL_FROM ?? "Ideal Cars <noreply@idealcarsltd.co.nz>";
 
+// From address for emails the customer is meant to reply to (e.g. an admin's
+// reply to an enquiry). Uses a non-"noreply" mailbox on the verified domain so
+// the visible sender doesn't contradict the "reply to this email" wording.
+// Replies still route to EMAIL_REPLY_TO via the Reply-To header.
+const REPLY_FROM_EMAIL =
+  process.env.EMAIL_REPLY_FROM ?? "Ideal Cars <enquiries@idealcarsltd.co.nz>";
+
 function getResend() {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
@@ -85,7 +92,7 @@ export async function emailCustomer({ to, subject, html }: CustomerEmailArgs) {
   if (!resend) return;
   try {
     const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: REPLY_FROM_EMAIL,
       to,
       subject,
       html,
@@ -146,7 +153,7 @@ export async function sendEnquiryReply(args: {
   }
   try {
     const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: REPLY_FROM_EMAIL,
       to: args.to,
       subject: args.subject,
       html: args.html,
