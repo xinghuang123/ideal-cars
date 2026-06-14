@@ -1,13 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { subscribeNewsletter } from "@/app/newsletter/actions";
 
-type Status = "idle" | "submitting" | "success" | "error" | "duplicate";
+type Status =
+  | "idle"
+  | "submitting"
+  | "pending"
+  | "already"
+  | "error";
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -15,30 +21,38 @@ export default function NewsletterForm() {
     if (!trimmed) return;
 
     setStatus("submitting");
+    setErrorMsg(null);
 
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .insert({ email: trimmed });
+    const result = await subscribeNewsletter(trimmed);
 
-    if (error) {
-      // Postgres unique-violation code
-      if (error.code === "23505") {
-        setStatus("duplicate");
-        return;
-      }
+    if ("error" in result) {
+      setErrorMsg(result.error);
       setStatus("error");
       return;
     }
 
-    setStatus("success");
+    if (result.status === "already") {
+      setStatus("already");
+      return;
+    }
+
+    setStatus("pending");
     setEmail("");
   }
 
-  if (status === "success") {
+  if (status === "pending") {
     return (
       <p className="mt-4 rounded-md bg-accent/10 px-3 py-2 text-sm text-accent">
-        Thanks for subscribing!
+        Almost there! We&apos;ve sent a confirmation link to your email — please
+        click it to complete your subscription.
+      </p>
+    );
+  }
+
+  if (status === "already") {
+    return (
+      <p className="mt-4 rounded-md bg-accent/10 px-3 py-2 text-sm text-accent">
+        You&apos;re already subscribed — thanks for being with us!
       </p>
     );
   }
@@ -50,7 +64,10 @@ export default function NewsletterForm() {
         value={email}
         onChange={(e) => {
           setEmail(e.target.value);
-          if (status !== "idle" && status !== "submitting") setStatus("idle");
+          if (status !== "idle" && status !== "submitting") {
+            setStatus("idle");
+            setErrorMsg(null);
+          }
         }}
         placeholder="Your email address"
         className="w-full rounded-md border border-navy-light bg-navy-dark px-3 py-2 text-sm text-silver placeholder:text-silver-dark focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
@@ -63,14 +80,9 @@ export default function NewsletterForm() {
       >
         {status === "submitting" ? "Subscribing..." : "Subscribe"}
       </button>
-      {status === "duplicate" && (
-        <p className="text-xs text-silver-dark">
-          You are already subscribed.
-        </p>
-      )}
       {status === "error" && (
         <p className="text-xs text-red-300">
-          Something went wrong. Please try again.
+          {errorMsg ?? "Something went wrong. Please try again."}
         </p>
       )}
     </form>

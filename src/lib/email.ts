@@ -445,6 +445,24 @@ export function renderAdminPasswordResetEmail(actionLink: string): string {
   );
 }
 
+export function renderNewsletterConfirmEmail(confirmUrl: string): string {
+  return emailShell(
+    "Confirm your newsletter subscription",
+    `
+      <p>Kia ora,</p>
+      <p>Thanks for signing up to the Ideal Cars newsletter — fresh stock, deals, and car-buying tips, straight to your inbox.</p>
+      <p>Please confirm your email address to start receiving updates:</p>
+      <p style="margin: 24px 0;">
+        <a href="${confirmUrl}" style="display: inline-block; background: #5BC0EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Confirm subscription</a>
+      </p>
+      <p style="font-size: 12px; color: #5b6570;">If the button doesn't work, copy and paste this link into your browser:<br/>
+      <a href="${confirmUrl}" style="color: #5BC0EB; word-break: break-all;">${confirmUrl}</a></p>
+      <p style="font-size: 12px; color: #5b6570;">If you didn't sign up, you can safely ignore this email — you won't be subscribed.</p>
+      <p style="margin-top: 24px;">Cheers,<br/>The Ideal Cars team</p>
+    `,
+  );
+}
+
 export function renderCustomerWelcomeEmail(fullName: string | null): string {
   const safe = fullName ? escapeHtml(fullName) : "there";
   return emailShell(

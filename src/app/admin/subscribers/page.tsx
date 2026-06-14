@@ -5,9 +5,23 @@ interface SubscriberRow {
   id: string;
   email: string;
   is_active: boolean;
+  confirmed: boolean;
   subscribed_at: string;
   unsubscribed_at: string | null;
 }
+
+type StatusKey = "active" | "pending" | "unsubscribed";
+
+function statusOf(s: SubscriberRow): StatusKey {
+  if (!s.confirmed) return "pending";
+  return s.is_active ? "active" : "unsubscribed";
+}
+
+const STATUS_STYLES: Record<StatusKey, { label: string; className: string }> = {
+  active: { label: "Active", className: "bg-green-100 text-green-800" },
+  pending: { label: "Pending", className: "bg-amber-100 text-amber-800" },
+  unsubscribed: { label: "Unsubscribed", className: "bg-gray-100 text-gray-600" },
+};
 
 export default async function SubscribersPage() {
   const supabase = createClient();
@@ -17,14 +31,18 @@ export default async function SubscribersPage() {
     .order("subscribed_at", { ascending: false });
 
   const subscribers = (data ?? []) as SubscriberRow[];
-  const activeCount = subscribers.filter((s) => s.is_active).length;
+  const activeCount = subscribers.filter(
+    (s) => s.confirmed && s.is_active,
+  ).length;
+  const pendingCount = subscribers.filter((s) => !s.confirmed).length;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-navy">Newsletter Subscribers</h1>
         <p className="mt-1 text-sm text-silver-dark">
-          {subscribers.length} total · {activeCount} active
+          {subscribers.length} total · {activeCount} active · {pendingCount}{" "}
+          pending
         </p>
       </div>
 
@@ -71,12 +89,10 @@ export default async function SubscribersPage() {
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
-                        s.is_active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-600"
+                        STATUS_STYLES[statusOf(s)].className
                       }`}
                     >
-                      {s.is_active ? "Active" : "Unsubscribed"}
+                      {STATUS_STYLES[statusOf(s)].label}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-silver-dark">
