@@ -35,7 +35,7 @@ export async function subscribeNewsletter(
 
   const { data: existing, error: lookupError } = await admin
     .from("newsletter_subscribers")
-    .select("id, confirmed")
+    .select("id, confirmed, is_active")
     .eq("email", email)
     .maybeSingle();
 
@@ -44,17 +44,23 @@ export async function subscribeNewsletter(
     return { error: GENERIC_ERROR };
   }
 
-  if (existing?.confirmed) {
+  // Genuinely subscribed right now (confirmed AND not unsubscribed) — nothing
+  // to do, and no need to re-confirm.
+  if (existing?.confirmed && existing.is_active) {
     return { status: "already" };
   }
 
   const token = randomUUID();
 
   if (existing) {
-    // Pending sign-up re-subscribing — issue a fresh token and reactivate.
+    // Either a pending sign-up, or a previously-confirmed subscriber who had
+    // unsubscribed and is opting back in. Either way, re-run opt-in: reset to
+    // unconfirmed with a fresh token so the confirmation email below applies.
     const { error } = await admin
       .from("newsletter_subscribers")
       .update({
+        confirmed: false,
+        confirmed_at: null,
         confirmation_token: token,
         is_active: true,
         unsubscribed_at: null,
