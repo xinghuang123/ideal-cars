@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import type { AboutTeamMemberRow } from "@/types/database";
 import {
@@ -144,6 +145,7 @@ function MemberRow({
   const [photoUrl, setPhotoUrl] = useState<string | null>(member.photo_url);
   const [name, setName] = useState(member.name);
   const [role, setRole] = useState(member.role);
+  const [bio, setBio] = useState(member.bio ?? "");
   const [isActive, setIsActive] = useState(member.is_active);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -207,6 +209,7 @@ function MemberRow({
     const res = await updateAboutTeamMember(member.id, {
       name,
       role,
+      bio,
       photo_url: photoUrl,
       is_active: isActive,
     });
@@ -322,6 +325,15 @@ function MemberRow({
               placeholder="e.g. Sales Manager"
             />
           </div>
+
+          <Textarea
+            label="Introduction"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            rows={3}
+            className="min-h-[80px]"
+            placeholder="A short note from this team member — what they do, how long they've been with us, anything they'd like customers to know."
+          />
 
           <div className="flex items-center justify-end gap-3">
             {showSavedFlash && (

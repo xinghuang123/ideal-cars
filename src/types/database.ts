@@ -136,6 +136,7 @@ export interface AboutTeamMemberRow {
   id: string;
   name: string;
   role: string;
+  bio: string;
   photo_url: string | null;
   display_order: number;
   is_active: boolean;

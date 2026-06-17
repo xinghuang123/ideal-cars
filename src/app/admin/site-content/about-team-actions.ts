@@ -19,6 +19,7 @@ async function requireAdmin() {
 export interface AboutTeamMemberFields {
   name: string;
   role: string;
+  bio: string;
   photo_url: string | null;
   is_active: boolean;
 }
@@ -71,6 +72,7 @@ export async function updateAboutTeamMember(
     .update({
       name: fields.name.trim(),
       role: fields.role.trim(),
+      bio: fields.bio.trim(),
       photo_url: fields.photo_url,
       is_active: fields.is_active,
       updated_by: user.id,

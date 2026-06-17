@@ -143,6 +143,11 @@ export default async function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-navy">{member.name}</h3>
                 <p className="text-sm text-silver-dark">{member.role}</p>
+                {member.bio?.trim() && (
+                  <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-navy/70">
+                    {member.bio}
+                  </p>
+                )}
               </div>
               );
             })}
