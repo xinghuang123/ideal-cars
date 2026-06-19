@@ -74,6 +74,7 @@ export default function MobileMenu({
               width={110}
               height={33}
               className="h-7 w-auto"
+              unoptimized
             />
           </Link>
 

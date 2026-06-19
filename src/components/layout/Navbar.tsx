@@ -46,6 +46,7 @@ export default function Navbar({ userEmail, userName, isAdmin }: NavbarProps) {
                 height={54}
                 className="h-10 w-auto"
                 priority
+                unoptimized
               />
             </Link>
 

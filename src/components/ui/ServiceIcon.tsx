@@ -129,7 +129,14 @@ export function ServiceIconBadge({
   if (imageUrl) {
     return (
       <div className={`relative overflow-hidden rounded-lg bg-white ${className}`}>
-        <Image src={imageUrl} alt="" fill className="object-cover" sizes="64px" />
+        <Image
+          src={imageUrl}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="64px"
+          unoptimized
+        />
       </div>
     );
   }

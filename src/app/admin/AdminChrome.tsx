@@ -52,6 +52,7 @@ export default function AdminChrome({
                 height={42}
                 priority
                 className="h-8 w-auto sm:h-10"
+                unoptimized
               />
               <span className="rounded border border-accent/40 bg-accent/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
                 Admin

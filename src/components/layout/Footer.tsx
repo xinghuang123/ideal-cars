@@ -30,6 +30,7 @@ export default async function Footer() {
                 width={180}
                 height={54}
                 className="h-10 w-auto"
+                unoptimized
               />
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-silver-dark">

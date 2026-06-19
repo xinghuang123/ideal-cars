@@ -237,6 +237,7 @@ function MemberRow({
                 fill
                 className="object-cover"
                 sizes="160px"
+                unoptimized
               />
             ) : (
               <div className="flex h-full items-center justify-center bg-gray-200 text-3xl font-bold text-silver-dark">
