@@ -125,6 +125,7 @@ export interface HeroSlideRow {
 
 export interface AboutValueRow {
   id: string;
+  icon: string;
   title: string;
   description: string;
   display_order: number;

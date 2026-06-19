@@ -4,6 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import {
+  FINANCE_ICON_OPTIONS,
+  ServiceIconBadge,
+} from "@/components/ui/ServiceIcon";
 import type { FinanceBenefitRow } from "@/types/database";
 import {
   createFinanceBenefit,
@@ -69,8 +73,8 @@ export default function FinanceBenefitsManager({
             Finance page — Benefit cards
           </h2>
           <p className="mt-1 text-xs text-silver-dark">
-            The four cards under &ldquo;Why Finance With Us&rdquo;. Icon is a
-            single character (e.g. %, ~, !, *) shown in the accent circle.
+            The four cards under &ldquo;Why Finance With Us&rdquo;. Pick a
+            built-in icon for each card from the dropdown.
           </p>
         </div>
         <Button
@@ -212,19 +216,35 @@ function BenefitRow({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[8rem_1fr]">
-          <Input
-            label="Icon (1 char)"
-            value={icon}
-            onChange={(e) => setIcon(e.target.value.slice(0, 4))}
-            maxLength={4}
-            placeholder="e.g. %"
-          />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-navy">
+              Icon
+            </label>
+            <div className="flex items-center gap-3">
+              <ServiceIconBadge
+                icon={icon}
+                className="h-11 w-11 shrink-0"
+                glyphClassName="h-5 w-5"
+              />
+              <select
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                className="w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+              >
+                {FINANCE_ICON_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-navy">

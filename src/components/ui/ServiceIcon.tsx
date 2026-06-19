@@ -66,6 +66,94 @@ const ICON_PATHS: Record<string, ReactNode> = {
     </>
   ),
   circle: <circle cx="12" cy="12" r="10" />,
+  // Finance / values glyphs (same stroked lucide style).
+  "dollar-sign": (
+    <>
+      <line x1="12" x2="12" y1="2" y2="22" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </>
+  ),
+  wallet: (
+    <>
+      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+    </>
+  ),
+  percent: (
+    <>
+      <line x1="19" x2="5" y1="5" y2="19" />
+      <circle cx="6.5" cy="6.5" r="2.5" />
+      <circle cx="17.5" cy="17.5" r="2.5" />
+    </>
+  ),
+  calendar: (
+    <>
+      <path d="M8 2v4" />
+      <path d="M16 2v4" />
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M3 10h18" />
+    </>
+  ),
+  handshake: (
+    <>
+      <path d="m11 17 2 2a1 1 0 1 0 3-3" />
+      <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
+      <path d="m21 3 1 11h-2" />
+      <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
+      <path d="M3 4h8" />
+    </>
+  ),
+  users: (
+    <>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </>
+  ),
+  heart: (
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  award: (
+    <>
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </>
+  ),
+  star: (
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  ),
+  "thumbs-up": (
+    <>
+      <path d="M7 10v12" />
+      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
+    </>
+  ),
+  "map-pin": (
+    <>
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </>
+  ),
+  "badge-check": (
+    <>
+      <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ),
+  "circle-check": (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ),
 };
 
 const DEFAULT_ICON = "wrench";
@@ -84,6 +172,34 @@ export const SERVICE_ICON_OPTIONS: { value: string; label: string }[] = [
   { value: "search", label: "Search (inspection)" },
   { value: "clipboard-check", label: "Clipboard (reports)" },
   { value: "circle", label: "Circle (generic)" },
+];
+
+/** Options for the Finance benefit icon dropdown, in display order. */
+export const FINANCE_ICON_OPTIONS: { value: string; label: string }[] = [
+  { value: "dollar-sign", label: "Dollar (finance options)" },
+  { value: "wallet", label: "Wallet (deposit / budget)" },
+  { value: "percent", label: "Percent (rates)" },
+  { value: "calendar", label: "Calendar (flexible terms)" },
+  { value: "zap", label: "Lightning (quick approval)" },
+  { value: "badge-check", label: "Badge (approved)" },
+  { value: "handshake", label: "Handshake (local support)" },
+  { value: "map-pin", label: "Map pin (local)" },
+  { value: "users", label: "People (all credit types)" },
+  { value: "circle-check", label: "Check (eligible)" },
+];
+
+/** Options for the About "Our Values" icon dropdown, in display order. */
+export const VALUE_ICON_OPTIONS: { value: string; label: string }[] = [
+  { value: "eye", label: "Eye (transparency)" },
+  { value: "award", label: "Award (quality)" },
+  { value: "star", label: "Star (excellence)" },
+  { value: "heart", label: "Heart (customer focus)" },
+  { value: "users", label: "People (community)" },
+  { value: "shield-check", label: "Shield (reliability)" },
+  { value: "thumbs-up", label: "Thumbs up (satisfaction)" },
+  { value: "handshake", label: "Handshake (trust)" },
+  { value: "badge-check", label: "Badge (assured)" },
+  { value: "circle-check", label: "Check (dependable)" },
 ];
 
 /** The raw SVG glyph for a given icon key (falls back to a wrench). */

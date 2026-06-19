@@ -5,6 +5,7 @@ import type { AboutValueRow } from "@/types/database";
 const FALLBACK_VALUES: AboutValueRow[] = [
   {
     id: "fallback-1",
+    icon: "eye",
     title: "Transparency",
     description:
       "No hidden fees, no surprises. We believe in honest pricing and clear communication at every step of the process.",
@@ -15,6 +16,7 @@ const FALLBACK_VALUES: AboutValueRow[] = [
   },
   {
     id: "fallback-2",
+    icon: "award",
     title: "Quality",
     description:
       "Every vehicle we sell is thoroughly inspected and comes with a comprehensive vehicle history. We stand behind what we sell.",
@@ -25,6 +27,7 @@ const FALLBACK_VALUES: AboutValueRow[] = [
   },
   {
     id: "fallback-3",
+    icon: "heart",
     title: "Customer First",
     description:
       "Your satisfaction is our priority. We listen to your needs and work hard to find the perfect vehicle and deal for you.",
@@ -35,6 +38,7 @@ const FALLBACK_VALUES: AboutValueRow[] = [
   },
   {
     id: "fallback-4",
+    icon: "users",
     title: "Community",
     description:
       "We are proud to be part of the local community. We support local events and charities, and treat every customer like family.",

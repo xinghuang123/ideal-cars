@@ -4,6 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import {
+  VALUE_ICON_OPTIONS,
+  ServiceIconBadge,
+} from "@/components/ui/ServiceIcon";
 import type { AboutValueRow } from "@/types/database";
 import {
   createAboutValue,
@@ -136,6 +140,7 @@ function ValueRow({
   onSaved,
   onError,
 }: ValueRowProps) {
+  const [icon, setIcon] = useState(value.icon ?? "star");
   const [title, setTitle] = useState(value.title);
   const [description, setDescription] = useState(value.description);
   const [isActive, setIsActive] = useState(value.is_active);
@@ -146,6 +151,7 @@ function ValueRow({
     onError(null);
     setSaving(true);
     const res = await updateAboutValue(value.id, {
+      icon,
       title,
       description,
       is_active: isActive,
@@ -207,11 +213,36 @@ function ValueRow({
           </div>
         </div>
 
-        <Input
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-navy">
+              Icon
+            </label>
+            <div className="flex items-center gap-3">
+              <ServiceIconBadge
+                icon={icon}
+                className="h-11 w-11 shrink-0"
+                glyphClassName="h-5 w-5"
+              />
+              <select
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                className="w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+              >
+                {VALUE_ICON_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-navy">
             Description

@@ -42,7 +42,7 @@ export async function createFinanceBenefit(): Promise<{
   const { data, error: insertError } = await supabase
     .from("finance_benefits")
     .insert({
-      icon: "*",
+      icon: "dollar-sign",
       title: "New Benefit",
       description: "",
       display_order: nextOrder,
@@ -68,7 +68,7 @@ export async function updateFinanceBenefit(
   const { error: updateError } = await supabase
     .from("finance_benefits")
     .update({
-      icon: fields.icon.trim() || "*",
+      icon: fields.icon.trim() || "dollar-sign",
       title: fields.title.trim(),
       description: fields.description.trim(),
       is_active: fields.is_active,

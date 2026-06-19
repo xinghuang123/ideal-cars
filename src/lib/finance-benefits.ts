@@ -5,7 +5,7 @@ import type { FinanceBenefitRow } from "@/types/database";
 const FALLBACK_BENEFITS: FinanceBenefitRow[] = [
   {
     id: "fallback-1",
-    icon: "%",
+    icon: "percent",
     title: "Competitive Rates",
     description:
       "We work with multiple lenders to find you the best interest rates available, ensuring you get the most affordable repayments.",
@@ -16,7 +16,7 @@ const FALLBACK_BENEFITS: FinanceBenefitRow[] = [
   },
   {
     id: "fallback-2",
-    icon: "~",
+    icon: "calendar",
     title: "Flexible Terms",
     description:
       "Choose a loan term from 1 to 5 years to suit your budget. Adjust your deposit and repayment schedule to fit your lifestyle.",
@@ -27,7 +27,7 @@ const FALLBACK_BENEFITS: FinanceBenefitRow[] = [
   },
   {
     id: "fallback-3",
-    icon: "!",
+    icon: "zap",
     title: "Quick Approval",
     description:
       "Our streamlined application process means you can get pre-approved quickly, often within the same day.",
@@ -38,7 +38,7 @@ const FALLBACK_BENEFITS: FinanceBenefitRow[] = [
   },
   {
     id: "fallback-4",
-    icon: "*",
+    icon: "users",
     title: "All Credit Types",
     description:
       "Whether you have excellent credit or are rebuilding, we have finance options available. Everyone deserves a fair go.",

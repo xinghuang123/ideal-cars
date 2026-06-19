@@ -6,6 +6,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { getSiteContent } from "@/lib/site-content";
 import { getActiveAboutValues } from "@/lib/about-values";
 import { getActiveAboutTeam } from "@/lib/about-team";
+import { ServiceIconGlyph } from "@/components/ui/ServiceIcon";
 
 export const dynamic = "force-dynamic";
 
@@ -72,8 +73,8 @@ export default async function AboutPage() {
                 key={value.id}
                 className="rounded-xl border border-silver bg-white p-6 text-center shadow-sm"
               >
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-xl font-bold text-accent">
-                  {value.title.charAt(0)}
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
+                  <ServiceIconGlyph icon={value.icon} className="h-7 w-7" />
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-navy">
                   {value.title}

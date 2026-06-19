@@ -15,6 +15,7 @@ async function requireAdmin() {
 }
 
 export interface AboutValueFields {
+  icon: string;
   title: string;
   description: string;
   is_active: boolean;
@@ -41,6 +42,7 @@ export async function createAboutValue(): Promise<{
   const { data, error: insertError } = await supabase
     .from("about_values")
     .insert({
+      icon: "star",
       title: "New Value",
       description: "",
       display_order: nextOrder,
@@ -66,6 +68,7 @@ export async function updateAboutValue(
   const { error: updateError } = await supabase
     .from("about_values")
     .update({
+      icon: fields.icon.trim() || "star",
       title: fields.title.trim(),
       description: fields.description.trim(),
       is_active: fields.is_active,

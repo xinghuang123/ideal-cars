@@ -8,6 +8,7 @@ import FinanceFAQ from "@/app/finance/FinanceFAQ";
 import { getCurrentCustomer } from "@/lib/auth";
 import { getSiteContent } from "@/lib/site-content";
 import { getActiveFinanceBenefits } from "@/lib/finance-benefits";
+import { ServiceIconGlyph } from "@/components/ui/ServiceIcon";
 import { getActiveFinanceFaqs } from "@/lib/finance-faqs";
 
 export const dynamic = "force-dynamic";
@@ -43,8 +44,8 @@ export default async function FinancePage() {
                 key={benefit.id}
                 className="rounded-xl border border-silver bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-2xl font-bold text-accent">
-                  {benefit.icon}
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
+                  <ServiceIconGlyph icon={benefit.icon} className="h-7 w-7" />
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-navy">
                   {benefit.title}
