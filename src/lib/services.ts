@@ -9,6 +9,7 @@ const FALLBACK_SERVICES: ServiceRow[] = [
     description:
       "Get your WOF inspection done quickly and efficiently. We are NZTA-approved inspectors ensuring your vehicle meets all safety requirements.",
     icon: "shield-check",
+    icon_image_url: null,
     features: [
       "NZTA-approved inspection",
       "Quick turnaround",
@@ -24,6 +25,7 @@ const FALLBACK_SERVICES: ServiceRow[] = [
     description:
       "Regular servicing keeps your car running at its best. We service all makes and models with genuine or quality aftermarket parts.",
     icon: "wrench",
+    icon_image_url: null,
     features: [
       "Full & interim services",
       "All makes and models",
@@ -39,6 +41,7 @@ const FALLBACK_SERVICES: ServiceRow[] = [
     description:
       "From minor fixes to major mechanical repairs, our experienced mechanics can diagnose and fix any issue with your vehicle.",
     icon: "cog",
+    icon_image_url: null,
     features: [
       "Engine & transmission",
       "Brakes & suspension",

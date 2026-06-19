@@ -6,6 +6,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import Button from "@/components/ui/Button";
 import { getSiteContent } from "@/lib/site-content";
 import { getActiveServices } from "@/lib/services";
+import { ServiceIconBadge } from "@/components/ui/ServiceIcon";
 
 export const dynamic = "force-dynamic";
 
@@ -13,16 +14,6 @@ export const metadata: Metadata = {
   title: "Service & Repairs | Ideal Cars",
   description:
     "Professional vehicle servicing, WOF inspections, mechanical repairs, and more. Trusted mechanics serving the community for over 10 years.",
-};
-
-const iconMap: Record<string, string> = {
-  "shield-check": "S",
-  wrench: "W",
-  cog: "M",
-  circle: "T",
-  search: "P",
-  zap: "E",
-  "clipboard-check": "P",
 };
 
 export default async function ServicePage() {
@@ -51,10 +42,11 @@ export default async function ServicePage() {
                 key={service.id}
                 className="flex flex-col rounded-xl border border-silver bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-xl font-bold text-accent">
-                  {(service.icon && iconMap[service.icon]) ||
-                    service.title.charAt(0)}
-                </div>
+                <ServiceIconBadge
+                  icon={service.icon}
+                  imageUrl={service.icon_image_url}
+                  className="mb-4 h-12 w-12"
+                />
 
                 <h3 className="mb-2 text-lg font-bold text-navy">
                   {service.title}

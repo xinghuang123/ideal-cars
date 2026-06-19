@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+const SITE_IMAGES_BUCKET = "site-images";
+
 async function requireAdmin() {
   const supabase = createClient();
   const {
@@ -18,6 +20,7 @@ export interface ServiceFields {
   title: string;
   description: string;
   icon: string;
+  icon_image_url: string | null;
   features: string[];
   is_active: boolean;
 }
@@ -72,6 +75,7 @@ export async function updateService(
       title: fields.title.trim(),
       description: fields.description.trim(),
       icon: fields.icon.trim() || null,
+      icon_image_url: fields.icon_image_url,
       features: fields.features.map((f) => f.trim()).filter(Boolean),
       is_active: fields.is_active,
     })
@@ -89,6 +93,22 @@ export async function deleteService(
   const { supabase, user, error } = await requireAdmin();
   if (error || !user) return { error: error ?? "Unauthorized" };
 
+  // Best effort: remove the icon image if it lives in site-images.
+  const { data: row } = await supabase
+    .from("services")
+    .select("icon_image_url")
+    .eq("id", id)
+    .single();
+
+  const imageUrl = (row as { icon_image_url: string | null } | null)
+    ?.icon_image_url;
+  if (imageUrl) {
+    const path = extractSiteImagePath(imageUrl);
+    if (path) {
+      await supabase.storage.from(SITE_IMAGES_BUCKET).remove([path]);
+    }
+  }
+
   const { error: deleteError } = await supabase
     .from("services")
     .delete()
@@ -98,6 +118,13 @@ export async function deleteService(
   revalidatePath("/service");
   revalidatePath("/admin/site-content");
   return { ok: true };
+}
+
+function extractSiteImagePath(publicUrl: string): string | null {
+  const marker = `/object/public/${SITE_IMAGES_BUCKET}/`;
+  const i = publicUrl.indexOf(marker);
+  if (i === -1) return null;
+  return publicUrl.slice(i + marker.length);
 }
 
 export async function reorderService(

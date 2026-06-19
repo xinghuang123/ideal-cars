@@ -2,8 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import {
+  SERVICE_ICON_OPTIONS,
+  ServiceIconBadge,
+} from "@/components/ui/ServiceIcon";
 import type { ServiceRow } from "@/types/database";
 import {
   createService,
@@ -12,14 +17,7 @@ import {
   reorderService,
 } from "./services-actions";
 
-const ICON_OPTIONS: { value: string; label: string; preview: string }[] = [
-  { value: "shield-check", label: "Shield (S)", preview: "S" },
-  { value: "wrench", label: "Wrench (W)", preview: "W" },
-  { value: "cog", label: "Cog (M)", preview: "M" },
-  { value: "circle", label: "Circle (T)", preview: "T" },
-  { value: "search", label: "Search (P)", preview: "P" },
-  { value: "zap", label: "Zap (E)", preview: "E" },
-];
+const BUCKET = "site-images";
 
 export default function ServicesManager({
   initialServices,
@@ -148,12 +146,59 @@ function ServiceRowEditor({
   const [title, setTitle] = useState(service.title);
   const [description, setDescription] = useState(service.description);
   const [icon, setIcon] = useState(service.icon ?? "wrench");
+  const [iconImageUrl, setIconImageUrl] = useState<string | null>(
+    service.icon_image_url,
+  );
   const [featuresText, setFeaturesText] = useState(
     service.features.join("\n"),
   );
   const [isActive, setIsActive] = useState(service.is_active);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    onError(null);
+    setUploading(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
+      const path = `services/${service.id}-${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET)
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from(BUCKET)
+        .getPublicUrl(path);
+
+      setIconImageUrl(urlData.publicUrl);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleRemoveImage() {
+    if (!iconImageUrl) return;
+    onError(null);
+    try {
+      const supabase = createClient();
+      const path = extractPath(iconImageUrl);
+      if (path) {
+        await supabase.storage.from(BUCKET).remove([path]);
+      }
+      setIconImageUrl(null);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Failed to remove image");
+    }
+  }
 
   async function handleSave() {
     onError(null);
@@ -166,6 +211,7 @@ function ServiceRowEditor({
       title,
       description,
       icon,
+      icon_image_url: iconImageUrl,
       features,
       is_active: isActive,
     });
@@ -236,17 +282,56 @@ function ServiceRowEditor({
             <label className="mb-1.5 block text-sm font-medium text-navy">
               Icon
             </label>
-            <select
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              className="w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
-            >
-              {ICON_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-3">
+              <ServiceIconBadge
+                icon={icon}
+                imageUrl={iconImageUrl}
+                className="h-11 w-11 shrink-0"
+                glyphClassName="h-5 w-5"
+              />
+              <select
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                disabled={!!iconImageUrl}
+                className="w-full rounded-lg border border-silver bg-white px-4 py-2.5 text-navy focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-silver-dark"
+              >
+                {SERVICE_ICON_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <label className="cursor-pointer rounded-md border border-silver bg-white px-3 py-1.5 text-xs font-medium text-navy hover:border-accent hover:text-accent">
+                {uploading
+                  ? "Uploading..."
+                  : iconImageUrl
+                    ? "Replace image"
+                    : "Upload image instead"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={handleUpload}
+                  disabled={uploading}
+                />
+              </label>
+              {iconImageUrl && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="rounded-md border border-silver bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:border-red-300 hover:bg-red-50"
+                >
+                  Remove image
+                </button>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-silver-dark">
+              {iconImageUrl
+                ? "Using the uploaded image. Remove it to go back to a built-in icon."
+                : "Pick a built-in icon, or upload your own image to override it."}
+            </p>
           </div>
         </div>
 
@@ -291,4 +376,11 @@ function ServiceRowEditor({
       </div>
     </li>
   );
+}
+
+function extractPath(publicUrl: string): string | null {
+  const marker = `/object/public/${BUCKET}/`;
+  const i = publicUrl.indexOf(marker);
+  if (i === -1) return null;
+  return publicUrl.slice(i + marker.length);
 }

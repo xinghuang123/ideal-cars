@@ -103,6 +103,7 @@ export interface ServiceRow {
   title: string;
   description: string;
   icon: string | null;
+  icon_image_url: string | null;
   features: string[];
   display_order: number;
   is_active: boolean;
