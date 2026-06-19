@@ -34,6 +34,14 @@ export interface SiteContent {
   youtube_url: string;
   tiktok_url: string;
   trader_registration_number: string;
+  stat_1_value: string;
+  stat_1_label: string;
+  stat_2_value: string;
+  stat_2_label: string;
+  stat_3_value: string;
+  stat_3_label: string;
+  stat_4_value: string;
+  stat_4_label: string;
   [key: string]: string;
 }
 
@@ -79,6 +87,14 @@ export const DEFAULTS: SiteContent = {
   youtube_url: "",
   tiktok_url: "",
   trader_registration_number: "M051177",
+  stat_1_value: "500+",
+  stat_1_label: "Cars Sold",
+  stat_2_value: "10+",
+  stat_2_label: "Years Experience",
+  stat_3_value: "4.8",
+  stat_3_label: "Star Rating",
+  stat_4_value: "100%",
+  stat_4_label: "NZ Owned",
 };
 
 export const SITE_CONTENT_KEYS = Object.keys(DEFAULTS) as (keyof SiteContent)[];
@@ -119,4 +135,12 @@ export const FIELD_LABELS: Record<keyof SiteContent, { label: string; type: "tex
     label: "Trader registration number (used on new CINs)",
     type: "text",
   },
+  stat_1_value: { label: "Stat 1 — value (e.g. 500+)", type: "text" },
+  stat_1_label: { label: "Stat 1 — label (e.g. Cars Sold)", type: "text" },
+  stat_2_value: { label: "Stat 2 — value (e.g. 10+)", type: "text" },
+  stat_2_label: { label: "Stat 2 — label (e.g. Years Experience)", type: "text" },
+  stat_3_value: { label: "Stat 3 — value (e.g. 4.8)", type: "text" },
+  stat_3_label: { label: "Stat 3 — label (e.g. Star Rating)", type: "text" },
+  stat_4_value: { label: "Stat 4 — value (e.g. 100%)", type: "text" },
+  stat_4_label: { label: "Stat 4 — label (e.g. NZ Owned)", type: "text" },
 };

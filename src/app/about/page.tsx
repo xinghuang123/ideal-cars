@@ -15,13 +15,6 @@ export const metadata: Metadata = {
     "Learn about Ideal Cars - a trusted, family-owned New Zealand car dealership with over 10 years of experience. Quality vehicles and honest service.",
 };
 
-const stats = [
-  { value: "500+", label: "Cars Sold" },
-  { value: "10+", label: "Years Experience" },
-  { value: "4.8", label: "Star Rating" },
-  { value: "100%", label: "NZ Owned" },
-];
-
 function splitParagraphs(text: string | null | undefined): string[] {
   if (!text) return [];
   return text
@@ -40,6 +33,12 @@ export default async function AboutPage() {
     ...splitParagraphs(content.about_intro),
     ...splitParagraphs(content.our_story_body),
   ];
+  const stats = [
+    { value: content.stat_1_value, label: content.stat_1_label },
+    { value: content.stat_2_value, label: content.stat_2_label },
+    { value: content.stat_3_value, label: content.stat_3_label },
+    { value: content.stat_4_value, label: content.stat_4_label },
+  ].filter((s) => s.value?.trim() || s.label?.trim());
   return (
     <>
       <PageHeader
@@ -90,8 +89,8 @@ export default async function AboutPage() {
       <section className="bg-navy py-12 sm:py-16">
         <Container>
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
+            {stats.map((stat, idx) => (
+              <div key={idx} className="text-center">
                 <p className="text-3xl font-bold text-accent sm:text-4xl">
                   {stat.value}
                 </p>

@@ -64,6 +64,19 @@ const SERVICE_GROUPS: SiteContentGroup[] = [
 
 const ABOUT_GROUPS: SiteContentGroup[] = [
   { title: "About page — Our Story", keys: ["about_intro", "our_story_body"] },
+  {
+    title: "About page — Stats bar",
+    keys: [
+      "stat_1_value",
+      "stat_1_label",
+      "stat_2_value",
+      "stat_2_label",
+      "stat_3_value",
+      "stat_3_label",
+      "stat_4_value",
+      "stat_4_label",
+    ],
+  },
 ];
 
 const CONTACT_GROUPS: SiteContentGroup[] = [
