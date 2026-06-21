@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
@@ -29,6 +30,7 @@ const subjects = [
 ] as const;
 
 export default function ContactForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
@@ -38,7 +40,6 @@ export default function ContactForm() {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -89,40 +90,16 @@ export default function ContactForm() {
       message: formData.message.trim(),
     });
 
-    setSubmitting(false);
-
     if (result.error) {
+      setSubmitting(false);
       setSubmitError(result.error);
       return;
     }
 
-    setSubmitted(true);
-  }
-
-  if (submitted) {
-    return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <svg
-            className="h-8 w-8 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <h3 className="text-xl font-bold text-green-800">Message Sent!</h3>
-        <p className="mt-2 text-green-700">
-          Thank you, {formData.name}. We have received your message and will get
-          back to you within one business day.
-        </p>
-      </div>
+    // Keep the button disabled while we navigate to the dedicated
+    // confirmation page (a stable URL used for Google Ads conversion tracking).
+    router.push(
+      `/contact/thank-you?name=${encodeURIComponent(formData.name.trim())}`,
     );
   }
 

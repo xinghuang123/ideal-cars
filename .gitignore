@@ -131,6 +131,9 @@ dist
 # Project docs (proposal drafts, etc.)
 docs/
 
+# Handover doc — kept local, not committed
+HANDOVER.md
+
 # yarn v2
 .yarn/cache
 .yarn/unplugged
