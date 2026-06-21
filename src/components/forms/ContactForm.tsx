@@ -96,11 +96,11 @@ export default function ContactForm() {
       return;
     }
 
-    // Keep the button disabled while we navigate to the dedicated
-    // confirmation page (a stable URL used for Google Ads conversion tracking).
-    router.push(
-      `/contact/thank-you?name=${encodeURIComponent(formData.name.trim())}`,
-    );
+    // Hand the name off via sessionStorage so it never appears in the URL,
+    // then navigate to the dedicated confirmation page (a stable URL used for
+    // Google Ads conversion tracking). Keep the button disabled meanwhile.
+    sessionStorage.setItem("contactName", formData.name.trim());
+    router.push("/contact/thank-you");
   }
 
   return (
