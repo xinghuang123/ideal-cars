@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import { CONTACT_CONVERSION_SEND_TO, reportConversion } from "@/lib/gtag";
 
 export default function ThankYouCard() {
   const [firstName, setFirstName] = useState<string | null>(null);
 
   useEffect(() => {
     // The name is handed off from the contact form via sessionStorage so it
-    // never appears in the URL. Read it once, then clear it.
+    // never appears in the URL. Read it once, then clear it. We only fire the
+    // Google Ads conversion when the name is present, i.e. the visitor arrived
+    // here from an actual form submission (not a direct visit or refresh).
     const stored = sessionStorage.getItem("contactName");
     if (stored) {
       setFirstName(stored.trim().split(/\s+/)[0]);
       sessionStorage.removeItem("contactName");
+      reportConversion(CONTACT_CONVERSION_SEND_TO);
     }
   }, []);
 

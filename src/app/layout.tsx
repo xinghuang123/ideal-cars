@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import PublicChrome from "@/components/layout/PublicChrome";
+import { GOOGLE_ADS_ID } from "@/lib/gtag";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -83,6 +85,20 @@ export default function RootLayout({
         <PublicChrome>{children}</PublicChrome>
         <Analytics />
         <SpeedInsights />
+
+        {/* Google tag (gtag.js) — Google Ads conversion tracking */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GOOGLE_ADS_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );
